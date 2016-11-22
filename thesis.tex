@@ -4,7 +4,7 @@
 %%==================================================
 
 % 双面打印
-\documentclass[doctor, fontset=adobe, openright, twoside]{sjtuthesis}
+\documentclass[master, fontset=adobe, openright, twoside]{sjtuthesis}
 % \documentclass[bachelor, fontset=adobe, openany, oneside, submit]{sjtuthesis} 
 % \documentclass[master, adobefonts, review]{sjtuthesis} 
 % \documentclass[%
@@ -23,6 +23,7 @@
 
 \begin{document}
 
+%\bibliographystyle{plain}
 %% 无编号内容：中英文论文封面、授权页
 \include{tex/id}
 \maketitle
@@ -63,10 +64,14 @@
 
 %% 正文内容
 \pagestyle{main}
-\include{tex/intro}
+\include{tex/chapter1}
+\include{tex/chapter2}
 \include{tex/example}
 \include{tex/faq}
 \include{tex/summary}
+
+%\cite{\bibitem{\thesis.bib}}
+%\bibliography{bib/thesis}
 
 \appendix	% 使用英文字母对附录编号，重新定义附录中的公式、图图表编号样式
 \renewcommand\theequation{\Alph{chapter}--\arabic{equation}}	
@@ -84,6 +89,8 @@
 
 %% 参考资料
 \printbibliography[heading=bibintoc]
+
+%\bibliography{bib/thesis.bib}
 
 %% 致谢、发表论文、申请专利、参与项目、简历
 %% 用于盲审的论文需隐去致谢、发表论文、申请专利、参与的项目
