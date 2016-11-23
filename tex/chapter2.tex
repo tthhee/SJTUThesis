@@ -60,7 +60,7 @@ $a_{ij} = a){ji} = 1$ 表示机器人$i,j$之间存在有效链接，否则不�
 \end{equation}
 由此可知，耦合矩阵对角线上的元素$a_{ii} = -d_i$。
 
-多机器人编队网络拓扑多采用$K$邻居模型\supercite{xue2004number}描述。在K邻居模型中，每个机器人的度$d_i \leq K, i=1,2, \dots ,n$。图2-1展示了几种常见的$K$邻居网络拓扑模型。
+多机器人编队网络拓扑多采用$K$邻居模型\supercite{xue2004number}描述。在K邻居模型中，每个机器人的度$d_i \leq K, i=1,2, \dots ,n$。图\ref{fig:K邻居网络拓扑模型}展示了几种常见的$K$邻居网络拓扑模型。
 
 \begin{figure*}[!htbp]
 	\centering
@@ -70,4 +70,75 @@ $a_{ij} = a){ji} = 1$ 表示机器人$i,j$之间存在有效链接，否则不�
 		\subfigure[K=6]{\includegraphics[width=5cm,height=4cm]{chapter2/figure2-1c.png}} &
 		\subfigure[K=8]{\includegraphics[width=5cm,height=4cm]{chapter2/figure2-1d.png}} \\
 	\end{tabular}
+	\bicaption[fig:K邻居网络拓扑模型]{几种常见的K邻居网络拓扑模型}{几种常见的K邻居网络拓扑模型}{Fig}{Several types of K-neighbor topology model.}
 \end{figure*}
+
+\section{网络拓扑同步性分析}
+
+\subsection{同步性理论分析}
+多机器人编队网络可以看成是$N$个同样的线性耗散耦合节点的复杂动态网络，则可以用以下状态方程描述\supercite{li2003synchronization}:\\
+\begin{equation}
+	\dot{x}_i = f(x_i) + c\sum_{j=i,j \neq i}^N a_{ij}\Gamma (x_j - x_i), i=1,2,\dots,N
+\end{equation}
+式中$\Gamma = diag(1,\dots,1)$。当机器人$i$和机器人$j$之间存在有效链接时，$a_{ij} = a_{ji} = 1$； 否则，$a_{ij} = a_{ji} = 0$。所以有：\\
+\[
+\sum_{j=1}^N a_{ij} = \sum_{j=1}^N a{ji} = k_i
+\]
+另$a_{ii} = -k_i$,则上述状态方程可以简化为：\\
+\begin{equation}
+	\dot{x}_i = f(x_i) + c\sum_{j=1}^N a_{ij}x_j, i=1,2,\dots,N 
+\end{equation}
+当利用耦合矩阵$A = (a_{ij} \in R^{N \times N})$表征网络耦合关系时，又\parencite{li2003synchronization}可知，矩阵$A$的最大特征值$\lambda_1 = 0$, 其他特征值满足:\\
+\[
+	0 = \lambda_1 > \lambda_2 \geq \lambda_3 \geq \dots \geq \lambda_N
+\]
+
+当耦合网络(2-10)达到同步时，各个状态满足：\\
+\begin{equation}
+	x_1(t) = x_2(t) = \dots = x_N(t) \rightarrow s(t), t \rightarrow \infty
+\end{equation}
+则网络状态方程变为$\dot{S}_t = f(s(t))$。
+
+对于动态网络$\dot{x}_i = f(x_i) + c\sum_{j=1}^N a_{ij}\Gamma (x_j-x_i), i=1,2,\dots,N$如果存在$n \times n$ 的对角阵$D>0$,以及两个常量$\bar{d}<0$和$\tau>0$,则满足：\\
+\begin{equation}
+	{\left[ Df(s(t))+dI\right]}^TD + D\left[Df(s(t)) + dI\right] \leq -\tau I
+\end{equation}
+$\forall d \leq \bar{d}, Df(s) \in R^{n \times n}$ 表示$f$在$s(t)$的雅克比矩阵，则如果$c\lambda_2 \leq \bar{d}$, 网络同步状态指数稳定。即\\
+\begin{equation}
+	c \geq |\frac{\bar{d}}{\lambda_2}|
+\end{equation}
+考虑单个机器人的动态性能，则可以另$c \geq \frac{h_{max}}{|\lambda_2|}$, $h_{max}$为网络中个体的最大李雅普诺夫指数，$h_{max}>0$。$c$代表耦合强度, $c$的取值范围越广，网络同步性的稳定性和鲁棒性越好。
+
+由以上结论可知，
+\begin{lem}
+\label{lem:lambda2}
+	耦合矩阵A的第二大特征值$\lambda_2$用于衡量编队网络同步的稳定性和鲁棒性。$\lambda_2$越小，编队网络同步的稳定性和鲁棒性越好，且当$\lambda_2 = 0$时，认为网络分裂成两个或多个不相连的部分\supercite{li2003synchronization}。
+\end{lem}
+
+\subsection{编队中机器人缺失对网络同步性的影响}
+多机器人编队网络拓扑耦合矩阵的第二大特征值$\lambda_2$用来衡量网络的同步性。编队中机器人缺失会影响网络拓扑的耦合矩阵，因此会影响编队网络的同步性。文献\parencite{张飞2008移动机器人覆盖问题的研究}中指出机器人缺失对编队网络同步性的影响程度大小与缺失机器人的度以及缺失机器人数量相关。图\ref{fig:sec_eigenvalue and failure ratio}显示了在丢失编队中不同度机器人的情况下，耦合矩阵第二大特征值$\lambda_2$和机器人缺失率$\Delta$的关系(缺失率：缺失机器人个数与编队总机器人个数的比值)。
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=8cm,height=6cm]{chapter2/figure2-2.png}
+	\bicaption[fig:sec_eigenvalue and failure ratio]{耦合矩阵第二大特征值与缺失率变化关系}{耦合矩阵第二大特征值与缺失率变化关系。其中圆圈表示每次移除网络中度最高的机器人，实线表示每次移除网络中度最低的机器人\supercite{张飞2008移动机器人覆盖问题的研究}。}{Fig}{The relation between second-largest eigenvalue of the coupling matrix and ratio of the failed robots. The circle line means removing the highest degree robot every time, the full line means removing the lowest degree robot every time.}
+\end{figure}
+从图\ref{fig:sec_eigenvalue and failure ratio}可知，网络拓扑耦合矩阵的第二大特征值随网络中度最高机器人的缺失数量的增加而增大，随网络中度最低机器人的缺失数量的增加而减小。由此可知，移除编队中度最高的机器人会使编队网络同步性下降，移除编队中度最低的机器人会使编队网络的同步性提高。
+
+从矩阵层面考虑度的大小与网络同步性的关系，则耦合矩阵$A$的一般形式：\\
+\begin{equation}
+	A = 
+	\begin{bmatrix}
+		-d_1 & 1 & 0 & \dots & 0 \\
+		1 & -d_2 & 0 & \dots & 0 \\
+		0 & 0 & -d_3 & \dots & 0 \\
+		\vdots & \vdots & \vdots & \vdots & \vdots\\
+		0 & 0 & 0 & \dots & -d_n
+	\end{bmatrix}
+\end{equation}
+根据矩阵与图论的相关理论可知，耦合矩阵$A$的第二大特征值随着机器人的度$d_i, i=1,2,\dots,n$的增加而减小。也就是说机器人度的增加会提高系统的同步性\supercite{张飞2008移动机器人覆盖问题的研究}。根据以上研究可得出结论：\\
+\begin{lem}
+	\label{lem:degree_syn}
+	当机器人编队网络中出现缺失机器人时，用度较低的机器人代替度较高的缺失机器人可以改善系统同步性，且机器人的度提升的越多，同步性改善程度越大。
+\end{lem}
+
+本文的自修复算法主要是依据引理\ref{lem:degree_syn}进行设计。

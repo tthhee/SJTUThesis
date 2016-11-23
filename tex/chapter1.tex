@@ -36,7 +36,7 @@
 随着研究的不断深入，在多机器人以及多智能体网络领域涌现了大批的自修复算法。这些自修复算法大致可以分为以下三类\supercite{张飞2010}：
 
 \subsection{直接自修复算法}
-直接自修复算法是指当网络中出现节点丢失时，采用直接指定某一节点去修复缺失节点的方式。在文献\parencite{corke2004autonomous}中，作者设计了如何创建和保持多传感器网络特定拓扑结构以及通信连接的节点分配和修复算法。作者利用无人机对整个传感器网络进行监控和调度。直升机可以和所有节点通信并构建整个网络拓扑连接，如图1-1所示。当直升机发现某个节点不在拓扑范围之内，直升机会重新分配此节点。如果发现网络拓扑连接某处出现断裂，则无人机会调整拓扑内部节点进行修复。在这一应用中，直升机起到一个监控中心、决策中心和调度中心的作用，属于集中式控制。重要适用于静态的拓扑控制，并且对无人机端的数据处理能力和稳定性要求较高。
+直接自修复算法是指当网络中出现节点丢失时，采用直接指定某一节点去修复缺失节点的方式。在文献\parencite{corke2004autonomous}中，作者设计了如何创建和保持多传感器网络特定拓扑结构以及通信连接的节点分配和修复算法。作者利用无人机对整个传感器网络进行监控和调度。直升机可以和所有节点通信并构建整个网络拓扑连接，如图\ref{fig:直接自修复-无人机}所示。当直升机发现某个节点不在拓扑范围之内，直升机会重新分配此节点。如果发现网络拓扑连接某处出现断裂，则无人机会调整拓扑内部节点进行修复。在这一应用中，直升机起到一个监控中心、决策中心和调度中心的作用，属于集中式控制。重要适用于静态的拓扑控制，并且对无人机端的数据处理能力和稳定性要求较高。
 %\begin{figure*}[!htbp]
 %	\centering
 %	\subfigure[]{\includegraphics[width=0.3\textwidth]{figure1-1.1.png}}
@@ -50,7 +50,7 @@
 	\begin{multicols}{2}
 		
 		\begin{center}
-			\subfigure[直升机集中式控制拓扑网络]{\includegraphics[width=6cm,height=4.8cm]{figure1-1.1.png}}
+			\subfigure[无人机集中式控制拓扑网络]{\includegraphics[width=6cm,height=4.8cm]{figure1-1.1.png}}
 		\end{center}
 		\begin{center}
 			\subfigure[修复前的拓扑网络]{\includegraphics[width=5cm,height=1.7cm]{figure1-1.2.png}}
@@ -59,12 +59,12 @@
 			\subfigure[修复后的拓扑网络]{\includegraphics[width=5cm,height=1.7cm]{figure1-1.3.png}}
 		\end{center}
 	\end{multicols}
-	\bicaption[fig:SRR]{利用无人机机进行集中式控制拓扑网络的直接自修复算法}{利用无人机机进行集中式控制拓扑网络的直接自修复算法}{Fig}{Autonomous deployment and repair of a sendor network using an unmanned aerial vehicle}
+	\bicaption[fig:直接自修复-无人机]{利用无人机进行集中式控制拓扑网络的直接自修复算法}{利用无人机机进行集中式控制拓扑网络的直接自修复算法}{Fig}{Autonomous deployment and repair of a sendor network using an unmanned aerial vehicle}
 \end{figure*}
 
 文献\parencite{Auto-holeDetection}中针对传感器网络覆盖问题进行了自修复的研究。文中主要针对网络覆盖中可能出现的空洞进行探测并修复。在算法执行过程中每个传感器节点与其他节点交换信息，多次交换信息后每个节点可以获得一个以它自身为中心的x-hop的邻居列表。即每一个节点能够获得拓扑网络中所有其他节点的信息，并计算出每个节点距离自己的跳数。如果出现空洞，则节点会根据自己的邻居列表选出一条修复路径，然后从所有的路径中选择一条效率最高的路径执行自修复。该算法需要每个节点都能够获得其他节点的信息，通信量比较大，且对每个节点的存储空间有所要求。若实现大规模节点的自修复则算法的时间和空间复杂度比较大，算法实现效率较低。
 
-文献\parencite{Zhang2006Motion}针对多机器人编队网络的运动同步性进行自修复。当多机器人编队网络中出现机器人故障或者通信失效时，可能会影响整个网络的运动同步性。此时文中算法采用临时扩大机器人通信范围的方式，使得编队中所有机器人能够共享信息，从而直接选出合适的修复机器人进行自修复。修复过程如图1-2所示。
+文献\parencite{Zhang2006Motion}针对多机器人编队网络的运动同步性进行自修复。当多机器人编队网络中出现机器人故障或者通信失效时，可能会影响整个网络的运动同步性。此时文中算法采用临时扩大机器人通信范围的方式，使得编队中所有机器人能够共享信息，从而直接选出合适的修复机器人进行自修复。修复过程如图\ref{fig:直接自修复-同步性}所示。
 \begin{figure*}[!htbp]
 	\begin{multicols}{2}
 		\begin{center}
@@ -80,20 +80,20 @@
 			\subfigure[]{\includegraphics[width=6cm,height=4cm]{figure1-2.d.png}}
 		\end{center}
 	\end{multicols}
-	\bicaption[fig:SRR]{多机器人编队网络运动同步性直接自修复}{多机器人编队网络运动同步性直接自修复}{Fig}{Directly self-healing for multi-robot formation motion synchronization.}	
+	\bicaption[fig:直接自修复-同步性]{多机器人编队网络运动同步性直接自修复}{多机器人编队网络运动同步性直接自修复}{Fig}{Directly self-healing for multi-robot formation motion synchronization.}	
 \end{figure*}
 由于出现机器人缺失后需要临时扩大机器人的通信范围，因此，算法不能算是完全分布式。并且多机器人的编队规模要收到传感器的最大通信距离的限制，不可能实现大规模机器人的编队控制，并且同样通信时间以及复杂度要随着编队规模的扩大呈指数型增长。
 
 \subsection{密度自修复算法}
-密度自修复算法主要应用在大量机器人进行自组装，形态生成或者区域覆盖等任务中。系统中的节点能够感知自身所处位置的密度，以此作为依据执行自修复算法，最终能够能够根据系统要求取得合理分布。文献\parencite{arbuckle2010self}中，作者仿照生物学纳米分子间信息交流的方式，研究了多智能体自主形态生成问题。在系统中已知一个几何形状，然后解析出几何形状的边集合，节点的有序集合。通过大量统一结构、统一编程的微小机器人执行分布式的形态生成算法可以构建出任意指定的形状。并且算法具有一定的容错机制，能够针对机器人失效，进行自修复。如图1-3所示。
+密度自修复算法主要应用在大量机器人进行自组装，形态生成或者区域覆盖等任务中。系统中的节点能够感知自身所处位置的密度，以此作为依据执行自修复算法，最终能够能够根据系统要求取得合理分布。文献\parencite{arbuckle2010self}中，作者仿照生物学纳米分子间信息交流的方式，研究了多智能体自主形态生成问题。在系统中已知一个几何形状，然后解析出几何形状的边集合，节点的有序集合。通过大量统一结构、统一编程的微小机器人执行分布式的形态生成算法可以构建出任意指定的形状。并且算法具有一定的容错机制，能够针对机器人失效，进行自修复。如图\ref{fig:密度自修复-形态生成}所示。
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[width=10cm,height=6cm]{figure1-3.png}
-	\bicaption[fig:SRR]{形态生成过程中机器人失效后的自修复}{形态生成过程中机器人失效后的自修复$^{[ ]}$}{Fig}{The structure recovers from the damage and self-repairs$^{[ ]}$}
+	\bicaption[fig:密度自修复-形态生成]{形态生成过程中机器人失效后的自修复}{形态生成过程中机器人失效后的自修复\supercite{arbuckle2010self}}{Fig}{The structure recovers from the damage and self-repairs\supercite{arbuckle2010self}}
 \end{figure}
 然而此算法的自修复过程具有一定的负面效应。即当机器人数量比较多，信息共享不完全时可能在系统中复制出两个完全一样的形状。
 
-在文献\parencite{derbakova2011decentralized}中，作者研究了群机器人有效覆盖特定区域的算法。该算法能够实现群机器人针对某一区域的覆盖，并能对覆盖失效的情况进行自修复。系统中存在一个网关，负责所有机器人之间通信的中转。每个机器人通过与邻居通信间接与网关链接。在已知感兴趣区域的形状之后，机器人根据自身位置，结合密度信息执行分散算法，最终能够均匀覆盖该区域。并且在区域内某些机器人被移除后，系统能够自动感知缺失，并通过网关进行路径规划，调度其他机器人重新均匀覆盖此区域。如图1-4所示。
+在文献\parencite{derbakova2011decentralized}中，作者研究了群机器人有效覆盖特定区域的算法。该算法能够实现群机器人针对某一区域的覆盖，并能对覆盖失效的情况进行自修复。系统中存在一个网关，负责所有机器人之间通信的中转。每个机器人通过与邻居通信间接与网关链接。在已知感兴趣区域的形状之后，机器人根据自身位置，结合密度信息执行分散算法，最终能够均匀覆盖该区域。并且在区域内某些机器人被移除后，系统能够自动感知缺失，并通过网关进行路径规划，调度其他机器人重新均匀覆盖此区域。如图\ref{fig:密度自修复-区域覆盖}所示。
 \begin{figure*}[!htbp]
 	\begin{tabular}{cccc}
 			\subfigure[]{\includegraphics[width=4cm,height=5cm]{figure1-4.a.png}} &
@@ -105,10 +105,10 @@
 			\subfigure[]{\includegraphics[width=4cm,height=5cm]{figure1-4.g.png}} &
 			\subfigure[]{\includegraphics[width=4cm,height=5cm]{figure1-4.h.png}} \\
 	\end{tabular}
-	\bicaption[fig:SRR]{多移动机器人区域覆盖网络连接自修复算法}{多移动机器人区域覆盖网络连接自修复算法}{Fig}{Coverage and repair algorithm for multi-robot systems}
+	\bicaption[fig:密度自修复-区域覆盖]{多移动机器人区域覆盖网络连接自修复算法}{多移动机器人区域覆盖网络连接自修复算法}{Fig}{Coverage and repair algorithm for multi-robot systems}
 \end{figure*}
 \subsection{递归自修复算法}
-递归自修复算法利用节点或机器人之间局部交互和网络拓扑切换实现自修复。在文献\parencite{abbasi2009movement}中Abbassi等人针对无线传感器执行器网络(Wireless Sensor and Actor Networks, WSANs)中节点失效影响网络连通性的问题，提出了DARA(Distributed Actor Recovery Algorithm)算法。DARA算法针对不同的网络拓扑分为DARA-1C和DARA-2C两个版本。DARA-1C算法用于维持和修复网络的一阶连通性。算法通过心跳机制检测网络中的节点丢失。当节点出现丢失时从丢失节点的邻居中根据节点的度、离缺失节点的距离大小、自身ID号等条件选取最佳候选修复节点。网络中每个节点维持二跳邻居信息，主要针对网络中割点(cut-vertex)丢失导致网络分裂成两个或多个部分的问题进行修复。如图1-5所示。
+递归自修复算法利用节点或机器人之间局部交互和网络拓扑切换实现自修复。在文献\parencite{abbasi2009movement}中Abbassi等人针对无线传感器执行器网络(Wireless Sensor and Actor Networks, WSANs)中节点失效影响网络连通性的问题，提出了DARA(Distributed Actor Recovery Algorithm)算法。DARA算法针对不同的网络拓扑分为DARA-1C和DARA-2C两个版本。DARA-1C算法用于维持和修复网络的一阶连通性。算法通过心跳机制检测网络中的节点丢失。当节点出现丢失时从丢失节点的邻居中根据节点的度、离缺失节点的距离大小、自身ID号等条件选取最佳候选修复节点。网络中每个节点维持二跳邻居信息，主要针对网络中割点(cut-vertex)丢失导致网络分裂成两个或多个部分的问题进行修复。如图\ref{fig:递归自修复-DARA-1C}所示。
 \begin{figure*}[!htbp]
 	\centering
 	\begin{tabular}{ccc}
@@ -116,21 +116,21 @@
 		\subfigure[]{\includegraphics[width=5cm,height=3cm]{figure1-5.b.png}}
 		\subfigure[]{\includegraphics[width=5cm,height=3cm]{figure1-5.c.png}}
 	\end{tabular}
-	\bicaption[fig:SRR]{使用DARA-1C算法实现传感器网络连接自修复}{使用DARA-1C算法实现传感器网络连接自修复}{Fig}{Using DARA-1C to repair the connectivity of WSANs}
+	\bicaption[fig:递归自修复-DARA-1C]{使用DARA-1C算法实现传感器网络连接自修复}{使用DARA-1C算法实现传感器网络连接自修复}{Fig}{Using DARA-1C to repair the connectivity of WSANs}
 \end{figure*}
 
-DARA-2C算法目的是维持网络的2阶连通性。可以实现网络外围节点丢失的自修复。算法的实现方式与DARA-1C类似，但主要是针对网络边缘节点进行自修复，目的是防止出现割点(cut-vertex)。修复算法只考虑是否维持2阶连通性。修复过程如图1-6所示。
+DARA-2C算法目的是维持网络的2阶连通性。可以实现网络外围节点丢失的自修复。算法的实现方式与DARA-1C类似，但主要是针对网络边缘节点进行自修复，目的是防止出现割点(cut-vertex)。修复算法只考虑是否维持2阶连通性。修复过程如图\ref{fig:递归自修复-DARA-2C}所示。
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[width=15cm,height=4cm]{figure1-6.png}
-	\bicaption[fig:SRR]{使用DARA-2C算法实现传感器网络2阶连通性自修复}{使用DARA-2C算法实现传感器网络2阶连通性自修复}{Fig}{Using DARA-2C to repair 2-connectivity of WSANs}
+	\bicaption[fig:递归自修复-DARA-2C]{使用DARA-2C算法实现传感器网络2阶连通性自修复}{使用DARA-2C算法实现传感器网络2阶连通性自修复}{Fig}{Using DARA-2C to repair 2-connectivity of WSANs}
 \end{figure}
 
-在文献\parencite{younis2010localized}中,同样针对传感器网络连通性问题，Younis等人提出了RIM(Recovery through Inward Motion)自修复算法。该算法主要是在节点出现缺失之后，缺失节点的所有邻居节点全部向缺失节点的位置移动，直至重新建立连接。缺失节点的邻居节点移动后若如出现新的空缺则由其邻居继续执行RIM算法进行自修复，直至整个网络保持连通。如图1-7所示。该算法只考虑网络的连通性，不考虑拓扑结构的变化。
+在文献\parencite{younis2010localized}中,同样针对传感器网络连通性问题，Younis等人提出了RIM(Recovery through Inward Motion)自修复算法。该算法主要是在节点出现缺失之后，缺失节点的所有邻居节点全部向缺失节点的位置移动，直至重新建立连接。缺失节点的邻居节点移动后若如出现新的空缺则由其邻居继续执行RIM算法进行自修复，直至整个网络保持连通。如图\ref{fig:递归自修复-RIM}所示。该算法只考虑网络的连通性，不考虑拓扑结构的变化。
 \begin{figure}
 	\centering
 	\includegraphics[width=9cm,height=8cm]{figure1-7.png}
-	\bicaption[fig:SRR]{RIM算法自修复过程}{RIM算法自修复过程}{Fig}{The self-healing process of RIM algorithm}
+	\bicaption[fig:递归自修复-RIM]{RIM算法自修复过程}{RIM算法自修复过程}{Fig}{The self-healing process of RIM algorithm}
 \end{figure}
 
 综上所述，前人关于自修复的算法几乎都是针对网络的联通性。然而类似于多机器人协同搬运这样的任务，需要多机器人能够保持特定的队形并且对编队的运动同步性要求较高。显然上述算法都无法适用于针对多机器人编队运动同步性的自修复。因此如何设计一种性能良好的针对多机器人编队网络运动同步性的自修复算法是值得思考和亟需解决的问题。
