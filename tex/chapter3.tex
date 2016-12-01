@@ -2,7 +2,7 @@
 \chapter{同步性改善全局最优的递归自修复算法}
 
 \section{自修复算法目标}
-根据上文所述，当多机器人编队中度较高的机器人出现缺失时，会导致编队同步性下降。假设在图\ref{fig:修复路径对比}中,空缺位置表示出现机器人缺失，记缺失机器人为$R_f$,则缺失机器人的度$d_{R_f} = 6$。由引理\ref{lem:degree_syn}可知。若用度小于$d_{R_f}$的机器人修复此缺失机器人，则会提高编队的同步性。若最终修复机器人为$R_r$,度为$d_{R_r}$。则$d_{R_f}-d_{R_r}$的值越大，同步性改善效果越好。因此，如果用编队中度最小的机器人去修复缺失机器人则会使同步性改善效果最优。
+根据上文所述，当多机器人编队中度较高的机器人出现缺失时，会导致编队同步性下降。假设在图\ref{fig:修复路径对比}中,空缺位置表示出现机器人缺失，记缺失机器人为$R_f$,则缺失机器人的度${R_f}.Deg = 6$。由引理\ref{lem:degree_syn}可知。若用度小于$R_f.Deg$的机器人修复此缺失机器人，则会提高编队的同步性。若最终修复机器人为$R_r$,度为$R_r.Deg$。则$R_f.Deg-R_r.Deg$的值越大，同步性改善效果越好。因此，如果用编队中度最小的机器人去修复缺失机器人则会使同步性改善效果最优。
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[width=8cm,height=8cm]{chapter3/figure3-1.png}
@@ -42,9 +42,9 @@
 \end{figure}
 
 为对比有无梯度信息在多机器人编队自修复中的差别，文献\parencite{张飞2008移动机器人覆盖问题的研究}和文献\parencite{liu2015gradient}分别实现了无梯度和有梯度的多机器人编队自修复算法。在文献\parencite{张飞2008移动机器人覆盖问题的研究}中，编队中机器人缺失后仅根据邻居机器人的度的信息选择修复机器人，选取规则为：\\
-\indent 1) 如果缺失机器人$R_f$的邻居$R_j \in N_e(i_f)$的度小于$R_f$的度，即$d_{R_j} \leq d_{R_f}$,则机器人$R_j$成为缺失机器人$R_f$的候选修复机器人。所有满足条件的候选修复机器人组成集合：\\
+\indent 1) 如果缺失机器人$R_f$的邻居$R_j \in N_e(R_f)$的度小于$R_f$的度，即$R_j.Deg \leq R_f.Deg$,则机器人$R_j$成为缺失机器人$R_f$的候选修复机器人。所有满足条件的候选修复机器人组成集合：\\
 \begin{equation}
-	C(R_f) = \{ R_j | d_{R_j} \leq d_{R_f}, R_j \in N_e{R_f} \} 
+	C(R_f) = \{ R_j | R_j.Deg \leq R_f.Deg, R_j \in N_e{R_f} \} 
 \end{equation} 
 \indent 2) 在集合$C(R_f)$中选择度最小的机器人作为缺失机器人$R_f$的修复机器人，如果存在多个度最小机器人，则随机选择一个作为修复机器人。\\
 
@@ -65,7 +65,16 @@
 
 从图中可以看出随机递归自修复算法在实现自修复时选出的修复路径有很大的随机性，且不同的修复路径性能差异较大。造成这种现象的原因主要是在修复机器人选取规则2中，当存在多个满足条件的候选修复机器人时随机选择其中一个，由此对修复路径造成很大的随机性。
 
-为避免在自修复中引入过大的随机性，本研究团队在之前工作中引入梯度，大大降低了随机性，提高了自修复算法的性能。如图\ref{fig:Gradient_self-healing}所示，是在编队网络中引入梯度，形成稳定的梯度分布，算法中与前人不同的是并不事先指定一个梯度种子节点，而是节点根据自己在拓扑网络中邻居数量判断自己是否为梯度种子节点(又称为梯度源节点)。修复机器人选取规则为：\\
+为避免在自修复中引入过大的随机性，本研究团队在之前工作中引入梯度，大大降低了随机性，提高了自修复算法的性能。如图\ref{fig:Gradient_self-healing}所示，是在编队网络中引入梯度，形成稳定的梯度分布，算法中与前人不同的是并不事先指定一个梯度种子节点，而是节点根据自己在拓扑网络中邻居数量判断自己是否为梯度种子节点(又称为梯度源节点)。即梯度源节点的定义如下：\\
+\begin{defn}
+	\label{defn:gradient_source}
+	若编队中机器人$R_i$的度满足：\\
+	\begin{equation}
+		\forall R_j \in N_e{R_i}, R_j.Deg > R_i.Deg
+	\end{equation}
+	则称机器人$R_i$为梯度源节点。
+\end{defn}
+修复机器人选取规则为：\\
 \indent 1)在缺失机器人$R_f$的邻居中选择度不大于缺失机器人度的机器人作为候选修复机器人。\\
 \indent 2)选择候选修复机器人集合中度最小的机器人作为修复机器人。\\
 \indent 3)如果存在多个度最小的候选修复机器人，则选择梯度值最小的机器人作为修复机器人。\\
@@ -86,7 +95,7 @@
 \end{figure*}
 从图中可以看到，引入梯度后修复路径的随机性降低很多，且修复路径是一条最短的修复路径。但是这里存在局部极小问题，在图\ref{fig:Gradient_self-healing}(a)中修复机器人序列中最后的梯度源节点机器人的度并不是全局最小。因此根据引理\ref{lem:degree_syn},同步性改善并不是全局最优。
 
-本文借鉴前人的做法，在多机器人编队自修复算法中利用梯度分布式估计机器人与度最小机器人的距离，从而找到最优的修复路径。但为避免局部极小的问题，编队在梯度扩散与更新过程中所传播的信息不只是梯度信息还包括梯度源节点的度的信息，从而将局部度极小节点而非全局度最小节点更新。下文会具体分析这一过程。
+本文借鉴前人的做法，在多机器人编队自修复算法中利用梯度分布式估计机器人与度最小机器人的距离，从而找到最优的修复路径。但为避免局部极小的问题，编队在梯度扩散与更新过程中所传播的信息不只是梯度信息还包括梯度源节点的度的信息，从而将局部度极小节点而非全局度最小节点更新，下文会具体分析这一过程。定义\textbf{梯度源节点的度}为机器人梯度值的扩散起点的梯度源节点的度的值。
 
 \section{同步性改善全局最优自修复算法}
 
@@ -99,11 +108,204 @@
 \end{figure}
 
 \subsection{初始状态}
+当编队刚开始运行时，所有机器人最开始都处于初始状态。在这一状态下机器人会执行相应的初始化工作，初始化的工作之一就是将自身的梯度值以及梯度源节点的度的值设置为一个很大的值$N_A$，用$Gra$表示机器人的梯度值,$DS$表示机器人的梯度源节点的度的值,则$Gra=N_A, DS=N_A$。接下来在这一状态下机器人的主要工作是判断自身是否为梯度源节点。根据梯度源节点的定义，判断自身是否为梯度源节点的伪代码如下：\\
+\begin{algorithm}
+	\caption{判断是否为梯度源节点}
+	\label{IsSourceNode}
+	\begin{algorithmic}[1]
+		\Require 邻居集合$NeighborList[]$
+		\Ensure $Ret$,是否为梯度源节点，$Ret \leftarrow true$是梯度源节点，$Ret \leftarrow false$不是梯度源节点
+		\Function{IsSourceNode}{$NeighborList[]$}
+			\State $Ret \gets false$
+			\For {$d_i \ in \ NeighborList[]$}
+				\If {$d_i.Deg \leq Deg$}
+					\State $Ret \gets false$
+				\EndIf
+			\EndFor 
+			\State \Return{$Ret$}
+		\EndFunction
+	\end{algorithmic}	
+\end{algorithm}
+执行上述程序之后，如果判断自身为梯度源节点则状态转移到梯度源节点状态，如果判断不是梯度源节点状态，则状态转移到非梯度源节点状态。图\ref{fig:initial_status}显示了编队拓扑网络中不同机器人节点执行判断是否为梯度源节点的程序后的判断结果。
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=6cm,height=6cm]{chapter3/figure3-6.png}
+	\bicaption[fig:initial_status]{梯度源节点的分布}{梯度源节点的分布}{Fig}{The distribution of gradient source node.}
+\end{figure}
 
-\subsection{梯度源节点状态}
+\subsection{梯度源节点状态与非梯度源节点状态}
+处于梯度源节点状态的机器人首先会将自身的梯度值置零，将梯度源节点的度设置成自身的度的大小，即$Gra=0; DS = Deg$。接下来处于梯度源节点状态的机器人会将自身梯度值$Gra$,梯度源节点的度值$DS$封装成一个数据对$P = [Gra,DS]$,然后将此数据对发送给自己的邻居机器人，由此触发整个编队的梯度扩散过程。根据图\ref{fig:initial_status}中的拓扑结构可知，梯度源节点的邻居包含非梯度源节点状态的机器人。又梯度扩散时整个编队拓扑层面的行为，因此梯度扩散过程是由编队中所有机器人参与完成的，梯度源节点触发梯度扩散过程，非梯度源节点传递梯度。因此下面描述的梯度扩散过程是属于梯度源节点状态和非梯度源节点状态下的机器人的共同行为。前文提到过，在梯度源节点生成时会产生局部极小的问题。如图\ref{fig:initial_status}所示，在初始状态下生成的梯度源节点部分度为2，部分度为3，并非全部拥有全局最小度。因此若在当前梯度源节点的分布下形成稳定的梯度分布，则无法保证最终的修复结果达到同步性改善全局最优。这也是文献\parencite{liu2015gradient}中取得效果。这也是本文算法引入梯度源节点的度的原因。本文算法会在梯度扩散过程中根据梯度源节点的度的信息判断当前梯度源节点是否为全局度最小节点，如果不是全局度最小节点，则将其更新为非梯度源节点，状态转移到非梯度源节点状态。经过这样的更新之后，编队中的梯度源节点全部拥有全局最小度，所有节点的梯度值也全部是由全局度最下节点扩散而来。由此可知，在梯度扩散过程中包含两个可能行为，即梯度的更新与梯度源节点的更新，而梯度源节点的更新只可能发生在梯度源节点状态下的机器人。由于这两个行为在梯度扩散过程中同时存在，因此以下梯度扩散公式包含上述两个行为。
 
-\subsection{非梯度源节点状态}
+梯度扩散公式如下：\\
+${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ \\
+\begin{equation}\scriptsize
+	P_i(t) = 
+	\begin{cases}
+		\vspace{0.5cm}
+		\left[
+		\begin{array}{c}
+			R_j.Gra(t-1) + \Delta \\
+			R_j.DS(t-1)
+		\end{array}
+		\right], & 
+		\begin{array}{l}
+			R_i.DS(t-1) > R_j.DS(t-1) \vee \\
+			(R_i.DS(t-1) = R_j.DS(t-1) \wedge R_i.Gra(t-1) +\delta > R_j.Gra(t-1) + \Delta)
+		\end{array} \\
+		
+		\left[
+		\begin{array}{c}
+		R_i.Gra(t-1) + \delta \\
+		R_i.DS(t-1)
+		\end{array}
+		\right], & 
+		\begin{array}{l}
+			R_i.DS(t-1) < R_j.DS(t-1) \vee \\
+			(R_i.DS(t-1) = R_j.DS(t-1) \wedge R_i.Gra(t-1) +\delta \leq R_j.Gra(t-1) + \Delta)
+		\end{array}		
+	\end{cases} 
+\end{equation}
+式中：\\
+\indent $t$ —— 时间，一个单位时间是指邻居间传递一次消息的时间。\\
+\indent $P_i(t)$ —— $t$时刻，机器人$R_i$的信息对。\\
+\indent $R_j.Gra(t-1)$ —— $t-1$时刻，机器人$R_j$的梯度值。\\
+\indent $R_j.DS(t-1)$ —— $t-1$时刻机器人$R_j$的梯度源节点的度。\\
+\indent $R_i.Gra(t-1)$ —— $t-1$时刻机器人$R_i$的梯度值。\\
+\indent $R_i.DS(t-1)$ —— $t-1$时刻机器人$R_i$的梯度源节点的度。\\
+\indent $\delta$ —— 机器人单位时间的梯度增量。\\
+\indent $\Delta$ —— 邻居间扩散的梯度增量。\\
+
+1.梯度更新：\\
+\indent 若机器人接收到的信息对中梯度源节点的度值小于自身梯度源节点的度值，则将自身的梯度源节点的度值更新为接收到的梯度源节点的度值，自身梯度值更新为接收到的梯度值加上邻居间的梯度增量。如果接收到的信息对中梯度源节点的度值等于自身梯度源节点的度值，则比较梯度值，若自身梯度值大于信息对中的梯度值加上梯度增量，则将自身梯度值更新为信息对中的梯度值与梯度增量的和。\\
+
+2.梯度源节点更新:\\
+\indent 若自身为梯度源节点，且接收到的信息对中梯度源节点的度值小于自身的度值，则将自身状态转移到非梯度源节点状态，并更新相应的梯度源节点的度和梯度值。
+
+梯度扩散算法的伪代码如下：\\
+\begin{algorithm}
+	\caption{梯度扩散算法}
+	\label{algorithm:gradient_diffusion}
+	\begin{algorithmic}[1]
+		\Require $R_j.Gra \leftarrow$ 邻居机器人的梯度值,$R_j.DS \leftarrow$  邻居机器人的梯度源节点的度
+		\Ensure $Gra \leftarrow$ 机器人自身的梯度值，$DS \leftarrow$  机器人自身的梯度源节点的度
+		\Function {GradientDiffusion}{$R_j.Gra,R_j.DS$}
+			\If {$R_j.DS < DS$ \textbf{or} ($R_j.DS == DS$ \textbf{and} $Gra > R_j.Gra + \Delta$ )}
+				\State $DS \gets R_j.DS$
+				\State $Gra \gets R_j.Gra + \Delta$
+			\Else
+				\State $Gra \gets Gra + \delta$
+			\EndIf		
+			\State \Return {$Gra, DS$}
+		\EndFunction
+	\end{algorithmic}
+\end{algorithm}
+
+\textbf{注1：} \indent 机器人单位时间的梯度增量$\delta$是为修复机器人执行修复之后导致梯度无法更新的情况而设置的。如图\ref{fig:no_update}所示，部分节点上方的括号内标注了该机器人的梯度与梯度源节点的度，图\ref{fig:no_update}(a)中绿色方框是一条修复路径。如图\ref{fig:no_update}(b),当修复完成时，修复机器人的梯度值仍然小于邻居机器人的梯度值，因此根据上述更新条件，则无法实现更新。所以为避免这种情况的发生，在机器人梯度无法得到更新的情况下，机器人梯度会随着时间累加$\delta$，最终使得自身梯度增大，从而可以实现更新。
+\begin{figure*}[!htbp]
+	\centering
+	\subfigure[]{\includegraphics[width=3cm,height=3cm]{chapter3/figure3-7a.png}}
+	\hspace{1cm}
+	\subfigure[]{\includegraphics[width=3cm,height=3cm]{chapter3/figure3-7b.png}}
+	\bicaption[fig:no_update]{修复机器人梯度无法更新情况}{修复机器人梯度无法更新情况}{Fig}{The situation that repairing robots cannot update gradient.}
+\end{figure*}
+
+图\ref{fig:gradient_diffusion}描述了梯度扩散的整个过程，包含梯度更新与梯度源节点的更新。节点上方的括号内数字含义同图\ref{fig:no_update}中的含义，即表示(梯度，梯度源节点的度)。节点颜色的深浅也同样显示了梯度值的大小，颜色越深，梯度值越小，黑色节点表示梯度源节点。图\ref{fig:gradient_diffusion}(c)中，红色数字表示经历了梯度源节点的度的更新。
+\begin{figure*}[!htbp]
+	\centering
+	\subfigure[t=0]{\includegraphics[width=4cm,height=4cm]{chapter3/figure3-8a.png}}
+	\hspace{0.5cm}
+	\subfigure[t=1]{\includegraphics[width=4cm,height=4cm]{chapter3/figure3-8b.png}}
+	\hspace{0.5cm}
+	\subfigure[t=2]{\includegraphics[width=4cm,height=4cm]{chapter3/figure3-8c.png}}
+	\bicaption[fig:gradient_diffusion]{梯度扩散——梯度更新与梯度源节点的更新}{梯度扩散——梯度更新与梯度源节点的更新}{Fig}{Gradient diffusion —— gradient update and gradient source node update.}
+\end{figure*}
+由上述梯度扩散过程及图\ref{fig:gradient_diffusion}可知，经过梯度扩散最终形成稳定梯度分布之后，所有机器人的梯度源节点的度值都相同，即为编队中全局度最小机器人的度。
 
 \subsection{候选修复状态}
+在编队中形成稳定的梯度分布之后，如果出现机器人缺失，则缺失机器人的邻居检测到缺失后会由当前的梯度源节点状态或者非梯度源节点状态转移到候选修复状态，称处于候选修复状态下的机器人为候选修复机器人。候选修复机器人会与其它候选修复机器人进行比较以确定最终的修复机器人。但是由于本文算法是完全分布式实现，机器人只能与其邻居直接通信，因此缺失机器人的邻居之间可能无法直接进行通信，如图\ref{fig:no_update}(a)所示，缺失机器人周围的邻居都会处于候选修复状态，但是如何能在其中选择出一个最佳的修复机器人呢？为解决这一问题，本文采用竞选机制。如果候选修复机器人竞选成功，则由候选修复状态转移到修复状态，如果竞选失败，则由候选修复状态转移回原状态。
 
+\subsubsection{竞选机制}
+候选修复机器人没有办法实现任意两两机器人之间的通信，所以每个机器人没有办法一次性获得所有其他候选修复机器人的信息。然而，处于候选修复状态下的机器人相互通信的目的就是要选择出最佳的修复机器人。因此，候选修复机器人没有必要同时获取到其他所有的候选修复机器人的信息，而只要能够得到所有候选修复机器人中最佳修复机器人信息即可。然后通过判断最佳修复机器人是否是自己即可最终确定出唯一的修复机器人。
+\begin{defn}
+	最佳修复机器人$R_b$为所有处于候选修复状态的机器人之中梯度值最小的修复机器人，即满足：\\
+	\[
+		\forall R_i \in N_e(R_f), R_b.Gra \leq R_i.Gra
+	\]
+\end{defn}
+这里仅比较候选修复机器人的梯度值是因为在梯度源节点状态与非梯度源节点状态下编队形成稳定梯度分布之后，所有机器人的梯度源节点的度值相同。
+
+具体竞选机制如下：\\
+\indent 1).每个候选修复机器人保存一个当前最佳修复机器人信息$M$，此信息中包含机器人的编号($id$)以及梯度值($Gra$)，并在初始时刻将此信息设置为自身的编号和梯度值，同时开启一个计时器$T$。\\
+\indent 2).每个机器人将自身保存的最佳修复机器人信息发送给邻居。\\
+\indent 3).候选修复机器人如果接收到邻居传来的最佳修复机器人信息$M_r$，则将自身的最佳修复机器人信息与其进行比较，如比较结果满足:\\
+\[
+	(M_r.Gra < M.Gra)\ ||\ (M_r.Gra == M.Gra\ \&\& \  M_r.id < M.id) 
+\]
+则将自身保存的最佳修复机器人信息更新为接收到的信息。\\
+\indent 4).重复执行步骤2，3，4直到定时器达到最大竞选时间$T_{max}$。如果此时保存的最佳修复机器人信息中的$id$等于自身$id$，则自己为最终的修复机器人，状态转移到修复状态，否则状态转移回候选修复状态之前的状态。
+
+算法\ref{algorithm:campaign_initial}和\ref{algorithm:campaign}是竞选机制的伪代码，其中算法\ref{algorithm:campaign_initial}是竞选机制的初始化工作，对应竞选机制的步骤1和2。算法\ref{algorithm:campaign}对应竞选机制的步骤3和4。代码中函数$SendToNeighbor(M)$并未给出具体实现，此函数功能是将信息$M$发送给邻居，属于通信函数。
+\begin{algorithm}
+	\caption{竞选机制初始化}
+	\label{algorithm:campaign_initial}
+	\begin{algorithmic}[1]
+		\Require $M \leftarrow$ 自身保存的最佳修复机器人信息， $T \leftarrow$ 定时器，单位时间表示邻居间一次通信时间
+		\Ensure $M \leftarrow$ 自身保存的最佳修复机器人信息， $T \leftarrow$ 定时器，一个时间单位表示邻居间一次通信时间
+		\Function{CampaignInitial}{$M, T$}
+			\State $M.Gra \gets Gra$
+			\State $M.id \gets id$
+			\State $T \gets 0$
+			\State $SendToNeighbor(M)$
+			\State \Return{$M,T$}
+		\EndFunction
+	\end{algorithmic}	
+\end{algorithm}
+
+\begin{algorithm}
+	\caption{竞选机制}
+	\label{algorithm:campaign}
+	\begin{algorithmic}[1]
+		\Require $M_r \leftarrow$ 邻居机器人发来的最佳修复机器人的信息
+		\Ensure $IsRepairingRobot \leftarrow$ 是否为修复机器人，$true \leftarrow $是， $ false \leftarrow$ 不是
+		\Function {CampaignForRepairingRobot}{$M_r$}
+			\State $T \gets T+1$					
+			\algstore{CampaignForRepairingRobot}
+	\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}
+	\begin{algorithmic}[1]
+		\algrestore{CampaignForRepairingRobot}
+			\If {$T < T_{max}$}
+				\If {$M_r.Gra < M.Gra$}
+					\State $M.Gra \gets M_r.Gra$
+					\State $M.id \gets M_r.id$	
+				\Else 
+					\If {$M_r.Gra == M.Gra \  \&\& \  M_r.id < M.id$}
+						\State $M.Gra \gets M_r.Gra$
+						\State $M.id \gets M.id$
+					\EndIf
+				\EndIf
+				\State $SendToNeighbor(M)$
+			\Else 
+				\If {$M.id == id$}
+					\State $IsRepairingRobot \gets true$
+					\State \Return {$IsRepairingRobot$} 
+				\EndIf	
+			\EndIf			
+		\EndFunction		
+	\end{algorithmic}
+\end{algorithm}
+
+图\ref{fig:campaign}展示了候选修复机器人之间的竞选过程。黄色节点代表机器人处于候选修复状态，红色节点表示机器人处于修复状态。节点内部的数字表示机器人的编号$id$，节点上方的数据对表示竞选过程中邻居间传递的信息，包含梯度值和机器人编号$(Gra,id)$,其中红色数据对表示最佳修复机器人的信息。从图中可以看出经过3倍的邻居通信时间，所有候选修复机器人保存的最佳修复机器人都相同，且最佳修复机器人的$id = 12$，因此$12$号机器人竞选成功，状态转移到修复状态，其他机器人转移回原状态。
+\begin{figure*}[!htbp]
+	\centering
+	\subfigure[$T=0$]{\includegraphics[width=3.5cm,height=3.5cm]{chapter3/figure3-9a.png}}
+	\subfigure[$T=1$]{\includegraphics[width=3.5cm,height=3.5cm]{chapter3/figure3-9b.png}}
+	\subfigure[$T=2$]{\includegraphics[width=3.5cm,height=3.5cm]{chapter3/figure3-9c.png}}
+	\subfigure[$T=3=T_{max}$]{\includegraphics[width=3.5cm,height=3.5cm]{chapter3/figure3-9d.png}}
+	\bicaption[fig:campaign]{候选修复机器人竞选过程}{候选修复机器人竞选过程}{Fig}{The campaign process of repairing robots candidates.}
+\end{figure*}
 \subsection{修复状态}
+
+\section{算法分析}

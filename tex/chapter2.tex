@@ -7,7 +7,7 @@
 在多机器人编队控制过程中，每个机器人个体都具有自主行动能力。尤其在实现分布式控制算法时，每个个体机器人需要具有独立的决策与执行能力。因此，机器人个体运动模型对编队的控制至关重要。另外在应用编队控制算法对整个编队系统进行控制从而实现特定任务时，对整体编队网络拓扑模型的掌握也是必不可少。编队网络拓扑模型是对整体编队网络拓扑分析与拓扑控制的基础\supercite{张飞2010}。
 
 \subsection{机器人个体运动模型}
-假设在$N$维空间内，机器人$i$的位置和速度分别表示为$p_i \in R^N$和$v_i \in R^N$。则机器人个体运动模型可以表示如下：\\
+假设在$N$维空间内，机器人$R_i$的位置和速度分别表示为$p_i \in R^N$和$v_i \in R^N$。则机器人个体运动模型可以表示如下：\\
 \begin{equation}
 	\left\{
 	\begin{aligned}
@@ -17,7 +17,7 @@
 	, i=1,2,\dots,n,
 	\right.
 \end{equation}
-其中$u_i^e$表示外部对机器人的控制输入，$u_i^o$表示其他机器人对机器人$i$的影响。$u_i^e$可简单表示为：\\
+其中$u_i^e$表示外部对机器人的控制输入，$u_i^o$表示其他机器人对机器人$R_i$的影响。$u_i^e$可简单表示为：\\
 \begin{equation}
 	u_i^e = f(p_i,v_i), i=1,2,\dots,n
 \end{equation}
@@ -41,7 +41,7 @@ $a_a,a_m$分别为位置和速度的增益系数，且满足$a_a,a_m > 0$。
 其中$a_0$为排斥系数，$R_s$为人为设置的障碍物有效作用半径。$\vec{r}_t$为排斥力的方向，即$\vec{r}_t = \vec{Op_i}/\lvert\lvert\vec{Op_i}\rvert\rvert$。
 
 \subsection{多机器人编队网络拓扑模型}
-本文的拓扑结构采用基于图论的网络拓扑。假设机器人编队中有$n$个机器人，$n$个机器人组成的编队网络用$G=(V,E)$表示，其中$V$表示图中节点的集合，$E$表示节点间边的集合。每个节点$v_i\in V, i=1,2,\dots,n$表示机器人$i$, $(v_i,v_j)\in E, i,j=1,2,\dots,n$表示机器人$i,j$之间的链接。利用矩阵$A=(a_{ij}),a_{ij} \in R^{n \times n}$表示网络拓扑的耦合关系，其中\\
+本文的拓扑结构采用基于图论的网络拓扑。假设机器人编队中有$n$个机器人，$n$个机器人组成的编队网络用$G=(V,E)$表示，其中$V$表示图中节点的集合，$E$表示节点间边的集合。每个节点$v_i\in V, i=1,2,\dots,n$表示机器人$R_i$, $(v_i,v_j)\in E, i,j=1,2,\dots,n$表示机器人$R_i,R_j$之间的链接。利用矩阵$A=(a_{ij}),a_{ij} \in R^{n \times n}$表示网络拓扑的耦合关系，其中\\
 \begin{equation}
 	a_{ij}=a_{ji} =
 	\begin{cases}
@@ -50,17 +50,17 @@ $a_a,a_m$分别为位置和速度的增益系数，且满足$a_a,a_m > 0$。
 	\end{cases}
 	, i,j = 1,2,\dots\dots,n, i \neq j
 \end{equation}
-$a_{ij} = a){ji} = 1$ 表示机器人$i,j$之间存在有效链接，否则不存在链接。耦合矩阵对角线上的元素$a_{ij} = -\sum_{i=1,i \neq j}^n a_{ij}$。规定与机器人$i$存在有效连接的机器人属于机器人$i$的邻居。则定义机器人$i$的邻居集合$N_e(i)$为：\\
+$a_{ij} = a){ji} = 1$ 表示机器人$i,j$之间存在有效链接，否则不存在链接。耦合矩阵对角线上的元素$a_{ij} = -\sum_{i=1,i \neq j}^n a_{ij}$。规定与机器人$R_i$存在有效连接的机器人属于机器人$R_i$的邻居。则定义机器人$R_i$的邻居集合$N_e(R_i)$为：\\
 \begin{equation}
-	N_e(i) = \left\{ \forall j, j \neq i \wedge a_{ij}=1 \right\}
+	N_e(R_i) = \left\{ \forall R_j, R_j \neq R_i \wedge a_{ij}=1 \right\}
 \end{equation}
-机器人$i$的度为：\\
+机器人$R_i$的度为：\\
 \begin{equation}
-	d_i = \sum_{j \in N_e(i)} a_{ij}
+	R_i.Deg = \sum_{R_j \in N_e(R_i)} a_{ij}
 \end{equation}
-由此可知，耦合矩阵对角线上的元素$a_{ii} = -d_i$。
+由此可知，耦合矩阵对角线上的元素$a_{ii} = -R_i.Deg$。
 
-多机器人编队网络拓扑多采用$K$邻居模型\supercite{xue2004number}描述。在K邻居模型中，每个机器人的度$d_i \leq K, i=1,2, \dots ,n$。图\ref{fig:K邻居网络拓扑模型}展示了几种常见的$K$邻居网络拓扑模型。
+多机器人编队网络拓扑多采用$K$邻居模型\supercite{xue2004number}描述。在K邻居模型中，每个机器人的度$R_i.Degree \leq K, i=1,2, \dots ,n$。图\ref{fig:K邻居网络拓扑模型}展示了几种常见的$K$邻居网络拓扑模型。
 
 \begin{figure*}[!htbp]
 	\centering
@@ -80,7 +80,7 @@ $a_{ij} = a){ji} = 1$ 表示机器人$i,j$之间存在有效链接，否则不�
 \begin{equation}
 	\dot{x}_i = f(x_i) + c\sum_{j=i,j \neq i}^N a_{ij}\Gamma (x_j - x_i), i=1,2,\dots,N
 \end{equation}
-式中$\Gamma = diag(1,\dots,1)$。当机器人$i$和机器人$j$之间存在有效链接时，$a_{ij} = a_{ji} = 1$； 否则，$a_{ij} = a_{ji} = 0$。所以有：\\
+式中$\Gamma = diag(1,\dots,1)$。当机器人$R_i$和机器人$R_j$之间存在有效链接时，$a_{ij} = a_{ji} = 1$； 否则，$a_{ij} = a_{ji} = 0$。所以有：\\
 \[
 \sum_{j=1}^N a_{ij} = \sum_{j=1}^N a{ji} = k_i
 \]
@@ -135,7 +135,7 @@ $\forall d \leq \bar{d}, Df(s) \in R^{n \times n}$ 表示$f$在$s(t)$的雅克�
 		0 & 0 & 0 & \dots & -d_n
 	\end{bmatrix}
 \end{equation}
-根据矩阵与图论的相关理论可知，耦合矩阵$A$的第二大特征值随着机器人的度$d_i, i=1,2,\dots,n$的增加而减小。也就是说机器人度的增加会提高系统的同步性\supercite{张飞2008移动机器人覆盖问题的研究}。根据以上研究可得出结论：\\
+根据矩阵与图论的相关理论可知，耦合矩阵$A$的第二大特征值随着机器人的度$R_i.Deg, i=1,2,\dots,n$的增加而减小。也就是说机器人度的增加会提高系统的同步性\supercite{张飞2008移动机器人覆盖问题的研究}。根据以上研究可得出结论：\\
 \begin{lem}
 	\label{lem:degree_syn}
 	当机器人编队网络中出现缺失机器人时，用度较低的机器人代替度较高的缺失机器人可以改善系统同步性，且机器人的度提升的越多，同步性改善程度越大。
