@@ -23,10 +23,12 @@
 \end{equation}
 若考虑障碍环境中，则$u_i^e$可表示为:\\
 \begin{equation}
+	\label{eq:outside_control}
 	u_i^e = f_a(p_i,v_i) + f_r(p_i,v_i), i=1,2,\dots,n
 \end{equation}
 其中，$f_a(p_i,v_i)$为目标对机器人的吸引力，$f_r(p_i,v_i)$为障碍物对机器人的排斥力。如果已知目标点的位置$T$和机器人当前位置的期望速度$v(t)$，则$f_a(p_i,v_i)$可以表示为：\\
 \begin{equation}
+	\label{eq:object_control}
 	f_a(p_i,v_i) = a_a(T-p_i) + a_m(v(t)-v_i), i=1,2,\dots,n
 \end{equation}
 $a_a,a_m$分别为位置和速度的增益系数，且满足$a_a,a_m > 0$。
