@@ -118,9 +118,8 @@
 	
 局部最优自修复算法的目的主要是在改善编队同步性过程中实现修复路径的最短，因此在牺牲了同步性改善效果之后针对每一个丢失机器人应该用最短的修复路径进行修复，然而在某些情况下该算法无法达到修复路径最短。当两个丢失机器人互为邻居时，可能会造成一个丢失机器人的最短修复路径包含另一个丢失机器人，如图\ref{fig:local_multi}(c)所示。此时就无法保证这个丢失机器人的修复路径最短。
 
-图\ref{fig:global_multi}是在多机器人丢失的情况下应用全局最优自修复算法进行自修复所选择的修复路径。
-
-\begin{figure*}[!htbp]
+图\ref{fig:global_multi}是在多机器人丢失的情况下应用全局最优自修复算法进行自修复所选择的修复路径。根据本文的梯度扩散规则以及自修复算法，每一个丢失机器人都可以最终等效成由编队中度最小机器人修复。根据引理\ref{lem:degree_syn},可以实现编队同步性改善全局最优。
+\begin{figure*}[]
 	\centering
 	\begin{tabular}{cc}
 		\subfigure[丢失两个机器人]{\includegraphics[width=6cm,height=6cm]{chapter5/figure5-9a.png}} &
@@ -132,3 +131,70 @@
 	\end{tabular}
 	\bicaption[fig:global_multi]{全局最优自修复算法针对多个丢失机器人的修复路径选择}{全局最优自修复算法针对多个丢失机器人的修复路径选择}{Fig}{The repairing paths of global optimal self-healing algorithm for multiple failed robots.}
 \end{figure*}
+
+图\ref{fig:multi_result}是3种算法应用在多个丢失机器人情况下的指标对比结果。仿真中分别针对丢失2、3、4、5个机器人的情况做10次重复试验，最终计算平均值，并记录最大最小值。从仿真结果可以看出，相比另两种算法本文算法具有最小的第二大特征值，即同步性改善效果最好。在修复机器人个数与修复机器人总移动距离上的仿真结果上局部最优自修复算法要略优于本文算法，主要是由于局部极小的问题，也因此使得同步性改善效果有限。根据每种情况下的10次重复试验结果可知，局部最优自修复算法与本文算法都是稳定的。另外从图\ref{fig:multi_result}(a)可知，在使用本文算法进行自修复的情况下，随着丢失机器人个数的增多，第二大特征值减小，同步性增强。这正好印证了文献\parencite{张飞2008移动机器人覆盖问题的研究}中所指出的机器人缺失对编队同步性的影响程度大小与缺失机器人的度以及缺失机器人数量的关系。即如图\ref{fig:sec_eigenvalue and failure ratio}所描述的关系，网络同步性随着编队网络中度最低机器人的缺失数量的增加而提高。
+\begin{figure*}[!htbp]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[第二大特征值仿真结果对比]{\includegraphics[width=7cm,height=6cm]{chapter5/figure5-10a.png}} 
+		\hspace{1cm}
+		\subfigure[修复机器人个数仿真结果对比]{\includegraphics[width=7cm,height=6cm]{chapter5/figure5-10b.png}} \\
+		\subfigure[修复机器人总移动距离仿真结果对比]{\includegraphics[width=7cm,height=6cm]{chapter5/figure5-10c.png}}
+	\end{tabular}
+	\bicaption[fig:multi_result]{多个丢失机器人仿真结果对比}{多个丢失机器人仿真结果对比}{Fig}{The comparation of simulation result for multiple failed robots.}
+\end{figure*}
+
+以上多个丢失机器人全部都是处在非梯度源节点的状态，然而，如果机器人的运动速度比较慢，或者机器人邻居之间的距离比较长，那么机器人的修复时间就不容易忽略。有可能在机器人执行修复过程中发生故障以致缺失。针对这种情况，由于本文算法是完全分布式的，因此会继续按照本文算法的修复策略进行修复，即在编队中选择一条修复路径来修复缺失的修复机器人。图\ref{fig:repairing_robot_failed}是修复状态下的机器人缺失的自修复仿真过程。
+图\ref{fig:repairing_robot_failed}(a)中一个非梯度源节点状态下的机器人丢失，根据本文算法在编队中选出了一条同步性改善全局最优的自修复路径。在修复机器人执行修复过程中，其中某个修复机器人出现缺失，如图\ref{fig:repairing_robot_failed}(b)所示。此时缺失的修复机器人邻居中的非修复状态下的机器人进行竞选，竞选成功的机器人修复缺失的修复状态机器人，并在邻居中传递修复状态，不断传递修复状态直到编队中的梯度源节点也是度最小节点。此时选出了另一条修复路径，用来修复缺失的修复状态机器人，如图\ref{fig:repairing_robot_failed}(b)所示。最终编队中缺失的所有机器人都等效成由度最小机器人进行填补，根据引理\ref{lem:degree_syn}可知，实现同步性改善全局最优。
+\begin{figure*}[!htbp]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[]{\includegraphics[width=6cm,height=6cm]{chapter5/figure5-11a.png}}
+		\hspace{1cm}
+		\subfigure[]{\includegraphics[width=6cm,height=6cm]{chapter5/figure5-11b.png}} \\
+		\subfigure[]{\includegraphics[width=6cm,height=6cm]{chapter5/figure5-11c.png}}
+	\end{tabular}
+	\bicaption[fig:repairing_robot_failed]{修复状态机器人丢失自修复过程}{修复状态机器人丢失自修复过程}{Fig}{The self-healing process of repairing robot's failure.}
+\end{figure*}
+
+\section{编队自修复实验}
+本文算法在第四章介绍的自主设计的实验系统上进行了实验验证。根据实际环境与设备条件，本实验采用6台Frontier \uppercase\expandafter{\romannumeral3}型自主移动机器人，按照6邻居网络模型编成图\ref{fig:experiment_topo}所示队形，这里将机器人进行编号以方便描述。
+\begin{figure}
+	\centering
+	\includegraphics[width=8cm,height=7cm]{chapter5/figure5-12.png}
+	\bicaption[fig:experiment_topo]{自修复实验编队模型}{自修复实验编队模型}{Fig}{The formation model of the self-healing experiment.}
+\end{figure}
+从图中可知，1号机器人是编队中度最小的机器人，因此根据梯度扩散规则1号机器人是梯度源节点，其他单个机器人的丢失都将由它来进行修复。在编队中2号和4号机器人是度局部极小机器人。若按照文献\parencite{liu2015gradient}中的梯度扩散规则，则2号和4号机器人也是梯度源节点并且无法得到更新。在实验中我们另5号机器人丢失，如果按照文献\parencite{liu2015gradient}的自修复规则，最终会由2号机器人进行修复，修复后的编队如图\ref{fig:local_experiment_result}所示。
+\begin{figure}
+	\centering
+	\includegraphics[width=8cm,height=7cm]{chapter5/figure5-13.png}
+	\bicaption[fig:local_experiment_result]{局部最优自修复算法实验结果}{局部最优自修复算法实验结果}{Fig}{The experiment result of local optimal self-healing algorithm.}
+\end{figure}
+
+若采用本文算法，则自修复过程如图\ref{fig:global_experiment_process}所示，在5号机器人丢失后，根据竞选机制，3号机器人会竞选成功，成为第一步的修复机器人，填补5号机器人的空缺位置，5号机器人会在邻居中选取下一步的修复机器人并将修复状态传递给它。根据修复机器人选取规则，1号机器人会被选为下一步的修复机器人，填补3号机器人的空缺。1号机器人是全局度最小机器人，因此修复状态传递结束。修复完成后的编队如图\ref{fig:global_experiment_process}(d)。
+\begin{figure*}
+	\centering
+	\subfigure[]{\includegraphics[width=5cm,height=4cm]{chapter5/figure5-14a.png}}
+	\subfigure[]{\includegraphics[width=5cm,height=4cm]{chapter5/figure5-14b.png}}
+	\subfigure[]{\includegraphics[width=5cm,height=4cm]{chapter5/figure5-14c.png}}
+	\subfigure[]{\includegraphics[width=5cm,height=4cm]{chapter5/figure5-14d.png}}
+	\bicaption[fig:global_experiment_process]{全局最优自修复算法实验过程}{全局最优自修复算法实验过程}{Fig}{The experiment process of global optimal self-healing algorithm.}
+\end{figure*}
+
+图\ref{fig:real_experiment}展示了真实实验场景及过程，图中左半部分是实际Frontier \uppercase\expandafter{\romannumeral3}型自主移动机器人组成的编队队形，右半部分是在Vicon运动捕捉系统上观测到的编队图像。实验中人为取走编队中的机器人使其失效，编队能够自主的完成预期的修复效果，多次实验均能保证修复效果，证明本文算法的实际可行性和稳定性。
+\begin{figure*}
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[]{\includegraphics[width=8cm,height=4cm]{chapter5/figure5-15aaa.png}} & 
+		\subfigure[]{\includegraphics[width=8cm,height=4cm]{chapter5/figure5-15bbb.png}} \\
+		\subfigure[]{\includegraphics[width=8cm,height=4cm]{chapter5/figure5-15ccc.png}} &
+		\subfigure[]{\includegraphics[width=8cm,height=4cm]{chapter5/figure5-15ddd.png}}
+	\end{tabular}
+	\bicaption[fig:real_experiment]{真实实验中多机器人编队的同步性改善全局最优自修复过程}{真实实验中多机器人编队的同步性改善全局最优自修复过程}{Fig}{The process of global optimal synchroniation improvement self-healing in real experiment.}
+\end{figure*}
+
+\section{本章小结}
+本文主要对本文所提的同步性改善全局最优的完全分布式自修复算法进行了仿真和实验验证。仿真中将本文算法与随机自修复算法和局部最优自修复算法在同步性，修复机器人个数，修复机器人总移动距离等指标上进行了对比
+。实现了本文算法在单个机器人丢失和多个机器人丢失情况下的自修复过程，同时再现了随机自修复算法和局部最优自修复算法在两种情况下的仿真。分析出随机自修复算法的随机性过大问题以及局部最优自修复算法的局部极小问题。在两种情况下的仿真结果对比中均显示出本文算法在改善同步性方面的优越性。另外还考虑了机器人在执行修复任务过程中出现缺失的自修复情况，本文算法仍然能够选出一条最优的修复路径保证同步性改善的全局最优。
+
+在实验中，设计了6台Frontier \uppercase\expandafter{\romannumeral3}型自主移动机器人的编队场景。人为设计机器人缺失后，机器人应用本文算法能够自主进行自修复。实验中成功避开了文献\parencite{liu2015gradient}中存在的局部极小问题。多次成功实验表明本文算法的有效性和稳定性。
