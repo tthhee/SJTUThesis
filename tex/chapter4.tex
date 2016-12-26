@@ -1,134 +1,214 @@
-\chapter{自修复实验系统设计}
-为验证本文算法的有效性和可行性。本章设计了一套切实可行的试验系统，并在改系统下成功进行了同步性改善全局最优自修复实验。
+\chapter{自修复算法仿真}
 
-\section{系统需求}
-在设计系统之前需要明确系统都需要哪些功能。根据前文对自修复算法的描述和分析可知，首先需要有多个机器人实体来完成编队控制和算法执行。实验中为使得多机器人能够保持编队并顺利执行修复动作，机器人必须知道自身的位置，以及邻居机器人的位置信息。因此该系统需要获取机器人的位置信息。当编队中机器人出现缺失时，其邻居机器人要能够判断出邻居的丢失。在梯度扩散与修复状态传递的过程中还需要编队机器人内部的信息通信。另外对于系统的运行与停止需要我们人为的控制，而多个机器人无法手动同时开启或停止，所以需要设计一个远程控制平台来对整个编队进行控制，同时还能够检测编队中各个机器人的转态。本章实验系统主要围绕以上功能需求而设计。
-
-\section{系统框架及组成}
-根据以上需求可知，本实验系统主要具备3大功能部分：定位系统、机器人个体控制及通信系统、远程控制系统。图\ref{fig:system_structure}描述了整个系统的框架图，下面依次介绍3个子系统的设计。
+\section{仿真平台与算法评价指标}
+为验证本文算法的有效性，在MATLAB R2014a 环境下进行仿真。在仿真中对机器人动力学模型进行简化。首先不考虑障碍物对机器人的影响，即式\ref{eq:outside_control}中$f_r(p_i,v_i) = 0$。其次，另位置和速度的增益系数为$1$,则式\ref{eq:object_control}中的系数$a_a=1, a_m=1$。同时考虑在静态编队情况下进行自修复的仿真，所以机器人的期望速度为0，即式\ref{eq:object_control}中的$v(t) = 0$。本仿真是在二维空间下进行，采用112个机器人构成的6邻居编队网络模型，如图\ref{fig:simulation_topo}所示。图中每个空心圆代表一个机器人，机器人与机器人之间的连线表示他们之间的通信链接。机器人期望位置之间的距离为10，机器人的有效通信距离为12.5。
 \begin{figure}[!htbp]
 	\centering
-	\includegraphics[width=10cm,height=8cm]{chapter4/figure4-3.png}
-	\bicaption[fig:system_structure]{试验系统框架示意图}{试验系统框架示意图}{Fig}{The schematic diagram of experimental system.}
+	\includegraphics[width=10cm,height=7cm]{chapter5/figure5-1.png}
+	\bicaption[fig:simulation_topo]{MATLAB平台下112个机器人构成的6邻居网络拓扑}{MATLAB平台下112个机器人构成的6邻居网络拓扑}{Fig}{The six-neighbor network topology constructed by 112 robots in MATLAB.}
 \end{figure}
 
-\subsection{定位系统}
-本实验系统的定位系统主要采用Vicon光学运动捕捉系统进行机器人的空间定位。Vicon光学运动捕捉系统是由世界上一家非常著名的光学动作捕捉(Motion Capture)系统供应商英国Oxford Metrics Limited 公司生产。它的这项技术在70年代服务于英国海军，从事遥感、测控技术设备的研究与生产。进入80年代他们将自己在军事领域里的高新技术逐渐用于民用方面，在医疗、运动、工程、生物等诸多领域生产制造用于运动捕捉的Motion Capture系统。80年代末，OML公司又将动作捕捉系统技术应用于影视的动画制作领域。
-\begin{figure}[!htbp]
-	\centering
-	\subfigure[运动捕捉系统]{\includegraphics[width=8cm,height=6cm]{chapter4/figure4-1a.png}}
-	\subfigure[Vicon 摄像头]{\includegraphics[width=5cm,height=4cm]{chapter4/figure4-1b.jpg}}
-	\bicaption[fig:vicon_camera]{Vicon光学运动捕捉系统示意图}{Vicon光学运动捕捉系统}{Fig}{The Vicon motion capture system.}
-\end{figure}
+在仿真中，主要将本文所提算法与文献\parencite{张飞2008移动机器人覆盖问题的研究}中的无梯度分布情况下的自修复算法(下文称随机自修复算法)和文献\parencite{liu2015gradient}中的存在局部极小问题的自修复算法(下文称局部最优自修复算法)在相同的编队拓扑网络下进行比较。对算法的性能主要考察以下指标：\\
+\indent 1)邻接矩阵的第二大特征值$\lambda_2$：由引理\ref{lem:lambda2}可知，邻接矩阵的第二大特征值$\lambda_2$可以用来衡量编队网络同步的稳定性和鲁棒性。$\lambda_2$越小，编队同步性能越好。此指标也是仿真中主要考察的一个指标。\\
+\indent 2)修复机器人个数：修复机器人个数的多少代表着修复路径的长短，从而直接影响着编队自修复的效率，修复机器人个数越少，修复效率越高。\\
+\indent 3)修复机器人总移动距离：此指标计算所有修复机器人在修复过程中移动距离的总和。之所以考察修复机器人的移动距离，是因为移动距离与能量消耗有关，在实际中具有重要意义。
 
-Vicon 是英国 OML 公司生产的光学动作捕捉 motion capture 系统。它是世界上第一个设计用于运动捕捉的光学系统，它以自己非凡的技术性能在 motion capture 系统硬件制造领域赢得了极高的声誉，并且改写了 motion capture 系统传统意义上涵盖的内容。它由一组网络连接的 Vicon MX 运动捕捉摄像机和其它设备，建立起一个完整的三维运动捕获系统，以提供实时光学数据，这些数据可以被应用于实时在线或者离线的运动捕捉、分析，应用领域涉及动画制作、虚拟现实系统、机器人遥控、互动式游戏、体育训练、人体工程学研究、生物力学研究等方面。
-
-Vicon运动捕捉系统的主要功能为：
-
-Vicon 系统是非常准确和可靠的光学动作捕捉系统，它所提供的实时光学数据，可以被应用于实时在线或者离线的运动捕捉、分析。
-
-特点：\\
-\indent 1)Vicon 公司开发了自己专利的 Vicon Vegas 传感器，可以实现高分辨率与高捕捉频率的同时性，实时捕捉三维效果好，功能强。\\
-\indent 2)MX Control 提供 Vicon MX 系统与第三方设备之间的接口，包括测力板、肌电设备、音频、数据手套、眼球跟踪器或者其它数字设备，也可以包含其它附加的板卡以增强 Vicon MX 系统的功能。\\
-\indent 3)捕捉摄像机精度高，得到数据非常稳定，捕捉距离也更远。\\
-\indent 4)局部捕捉标记点即使被身体挡住，经过软件处理后仍然可以得到令人满意的输出数据。\\
-\indent 5)MX 系统安装、调试方便，脱离了旧系统的数据服务器，运输携带更方便。\\
-\indent 6)软件界面人性化，数据处理能力强，批处理功能十分方便。
-
-如此高性能的运动捕捉设备，配合Vicon的应用软件Tracker3可以实现高精度，低延迟，多目标的机器人空间定位系统。结合Tracker3应用软件，系统具有如下性能特点：\\
-\indent 1)摄像头越多可追踪目标数越多。最低延迟可达到2.8ms处理10个目标，1.9ms处理5个目标。\\
-\indent 2)数据从观测端到使用端5ms低延迟。\\
-\indent 3)集成实时数据引擎，可以为第三方应用提供数据流，并支持单播TCP链接和多播UDP链接。\\
-\indent 4)结合Vicon DataStream SDK 接口，支持 C++, .NET, Windows, Linux, ROS等，方便开发。\\
-\indent 5)记录原始数据，支持回放以及离线数据分析。
-
-为使如此高性能的设备充分发挥价值，在定位系统设计时就需要考虑开发的可扩展性，以及功能的丰富性。
-
-\subsection{机器人个体控制及通信系统}
-本实验系统机器人个体采用本实验室自主研发的Frontier \uppercase\expandafter{\romannumeral3} 型自主移动机器人平台，如图\ref{fig:robot_zigbee}(a)所示。小车上搭载ASUS Eee PC 900HA笔记本电脑作为控制中心，分布式自修复算法运行在此笔记本之上。笔记本通过串口向小车的运动控制器发送速度信息从而控制小车运动。小车上安装有反光球用于运动捕捉系统的识别与定位。
+\section{单个机器人丢失仿真对比}
+首先进行单个机器人丢失的仿真对比。在相同的拓扑网络中使得同一个机器人丢失，分别应用不同的自修复算法进行自修复。图\ref{fig:random_single}描述了在由112个机器人构成的6邻居网络下进行的随机自修复仿真。坐标系内的所有实现圆点表示机器人的期望队形，每一个实心圆点对应一个机器人的期望位置。机器人中心的"x"表示机器人的当前位置。初始状态下，每一个机器人处在以期望位置为圆心，半径为5的范围内的一个随机位置，然后向期望位置移动，如图\ref{fig:random_single}(a)所示。
 \begin{figure*}[!htbp]
 	\centering
-	\subfigure[机器人个体]{\includegraphics[width=5cm,height=4cm]{chapter4/figure4-2a.png}}
+	\begin{tabular}{cc}
+	\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/Random_Single_a.png}} & 
 	\hspace{1cm}
-	\subfigure[ZigBee通信模块]{\includegraphics[width=5cm,height=4cm]{chapter4/figure4-2b.png}}
-	\bicaption[fig:robot_zigbee]{机器人个体与ZigBee通信模块}{机器人个体与ZigBee通信模块}{Fig}{The robot and ZigBee communication model.}
+	\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/Random_Single_b.png}} \\
+	\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/Random_Single_c.png}} &
+	\hspace{1cm}
+	\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/Random_Single_d.png}}	
+	\end{tabular}
+	\bicaption[fig:random_single]{6邻居网络拓扑下随机自修复算法仿真过程}{6邻居网络拓扑下随机自修复算法仿真过程}{Fig}{The process of random self-healing algorithm simulation for six neighbor network.}
+\end{figure*}
+当图\ref{fig:random_single}(b)中的空缺处出现机器人缺失时，根据文献\parencite{张飞2008移动机器人覆盖问题的研究}中的自修复规则选择一条修复路径，如图中红色机器人所示。修复机器人采用递归修复的方式一次填补对应的空缺，最终等效成一个度极小机器人修复缺失机器人。
+
+由于随机自修复算法中只根据机器人度的信息进行判断，当多个满足条件的机器人度相同的时候，随机选择修复机器人。因此修复路径的随机性很大，可以看出图\ref{fig:random_single}中的修复路径并不是最短的，且存在局部极小问题。图\ref{fig:random_RepairingPath}中分别为仿真中其他几种修复路径。
+\begin{figure*}[!htbp]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-3a.png}}　&
+		\hspace{1cm}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-3b.png}} \\
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-3c.png}} &
+		\hspace{1cm}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-3d.png}}
+	\end{tabular}
+	\bicaption[fig:random_RepairingPath]{随机自修复仿真中几种不同的修复路径}{随机自修复仿真中几种不同的修复路径}{Fig}{Several repairing paths for random self-healing algorithm.}
 \end{figure*}
 
-在本系统中包含有多种方向的通信，包括定位系统与机器人之间的通信，远程控制系统与机器人之间的通信，机器人与机器人之间的通信。其中，定位系统与机器人之间的通信采用局域网内部的网络通信方式。而机器人之间的通信由于需要多对多通信，且通信频繁数据量小，再有通信拓扑在算法执行过程中会动态建立以及切换，所以采用ZigBee作为机器人之间的组网通信方式，如图\ref{fig:robot_zigbee}(b)所示。ZigBee通信网络具有低功耗、低成本、近距离、短时延、高安全、工作频段灵活等特性。另外，主要是ZigBee的自组网通信方式可以轻松满足K邻居拓扑网络的构建与拓扑切换的需求。
+在文献\parencite{liu2015gradient}中引入了梯度信息，仿真过程如图\ref{fig:local_single}所示。代表机器人的圆圈中填充的颜色深浅表示梯度值的大小，颜色越深，梯度值越小，黑色表示梯度源节点。同样，空缺表示缺失机器人，图\ref{fig:local_single}(b)中缺失机器人与随机自修复仿真中的缺失机器人相同。红色圆圈代表修复机器人。由于引入梯度，因此算法降低了随机性，每次都能找到一条最短的修复路径。但是从仿真中也可以看出，算法存在的局部极小问题，仿真中最后的修复机器人度为3，而全局度最小的机器人度为2。因此同步性改善并不是最优的。
+\begin{figure*}[!htbp]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-4a.png}}　&
+		\hspace{1cm}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-4b.png}} \\
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-4c.png}} &
+		\hspace{1cm}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-4d.png}}
+	\end{tabular}
+	\bicaption[fig:local_single]{6邻居网络拓扑下局部最优自修复算法仿真过程}{6邻居网络拓扑下局部最优自修复算法仿真过程}{Fig}{The process of local optimal self-healing algorithm simulation for six neighbor network.}
+\end{figure*}
 
-\subsection{远程控制系统}
-远程控制系统主要是为实现对编队机器人同时控制，且显示各个机器人状态信息。远程控制的实现主要通过ZigBee网络中的协调器对所有编队机器人进行广播。
+本文算法就是为避免以上问题，从而实现同步性改善全局最优而设计。通过改善梯度扩散的方式而避免局部极小问题。图\ref{fig:global_single}是本文的同步性改善全局最优的自修复算法仿真过程。从图\ref{fig:global_single}(a)中可以看出，本文算法最终形成的稳定梯度分布形式与文献\parencite{liu2015gradient}中的不同，在图\ref{fig:local_single}(a)中的那些度为3的梯度源节点被更新，不再是梯度源节点。当出现缺失机器人时，缺失机器人的邻居检测到缺失后，自身状态转移到候选修复状态进行竞选。竞选成功的机器人转移到修复状态，然后继续选择下一步修复机器人将修复状态传递下去，
+\begin{figure*}[!htbp]
+	\centering
+%	\begin{tabular}{cc}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-5a.png}}　
+		\hspace{1cm}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-5b.png}} 
+%	\end{tabular}
+\end{figure*}
+\begin{figure*}[!htbp]
+		\centering
+%		\begin{tabular}{cc}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-5c.png}} 
+		\hspace{1cm}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-5d.png}}
+%	\end{tabular}
+	\bicaption[fig:global_single]{6邻居网络拓扑下全局最优自修复算法仿真过程}{6邻居网络拓扑下全局最优自修复算法仿真过程}{Fig}{The process of global optimal self-healing algorithm simulation for six neighbor network.}
+\end{figure*}
+直到梯度源节点从而选出一条修复路径如图\ref{fig:global_single}(c)所示。修复完成后的网络拓扑如图\ref{fig:global_single}(d)所示。
+\begin{figure*}[!htbp]
+	\centering
+	%	\begin{tabular}{cc}
+	\subfigure[第二大特征值对比结果]{\includegraphics[width=7cm,height=5cm]{chapter5/figure5-6a.png}} 
+	\subfigure[修复机器人个数对比结果]{\includegraphics[width=7cm,height=5cm]{chapter5/figure5-6b.png}} 
+	\subfigure[修复机器人总移动距离对比结果]{\includegraphics[width=7cm,height=5cm]{chapter5/figure5-6c.png}}
+	%	\end{tabular}
+	\bicaption[fig:simulation_result]{三种自修复算法仿真结果对比}{三种自修复算法仿真结果对比}{Fig}{The comparation of simulation result among three self-healing algorithm.}
+\end{figure*}
 
-\section{系统设计}
+在仿真中针对第二大特征值，修复机器人个数，修复机器人总移动距离三个指标将三种自修复算法进行了对比。图\ref{fig:simulation_result}是仿真结果的对比分析。在仿真中对同一个丢失机器人进行了十次重复试验，横坐标的实验ID表示$1~10$次实验。从图\ref{fig:simulation_result}(a)中可以看出，10次实验本文算法均取得了最小的第二大特征值，即意味着本文算法均获得了最优的同步性改善效果，且是稳定的。局部最优自修复算法虽然也是稳定的，但是由于产生了局部极小，因此无法取得最优的同步性改善效果。随机自修复算法由于存在过多的随机性，因此每一次的结果都无法保证相同，是不稳定的。对于修复机器人个数与修复机器人移动距离同样本文算法与局部最优自修复算法是稳定的，随机自修复算法不稳定。在修复机器人个数与修复机器人总移动距离的对比上，局部最优自修复算法当在产生局部极小问题时可能会获得比本文算法获得更少的修复机器人个数与总移动距离。但是根据前文3.4.3节有关修复时间的分析，虽然本文算法相比局部最优自修复算法具有更多的修复机器人个数与总移动距离，但是这并不会增加修复时间，因此对自修复的时间效率影响不大。
 
-\subsection{定位系统}
-鉴于Vicon光学运动捕捉系统的强大功能，本系统的设计不只考虑用于多机器人编队自修复的定位需求，同时考虑本实验室的多种机器人如无人机、机械臂，软体手术机器人的空间定位需求而开发。另外在设计过程中充分考虑了功能的可扩展性，方便以后机器人种类的增加或者功能的变化。在几种机器人当中根据结构可以大致分为两类，一种是刚体机器人，如本实验所需的小车，无人机，机械臂。另一种是柔性机器人，如软体手术机器人。针对这两类需求，Vicon运动捕捉系统提供了两款应用软件Tracker和Nexus。在这两款软件上可以对Vicon摄像头进行命名、参数配置和调整、标定、目标选择与命名等操作。然而这两款软件无法满足某些特定应用场景的需求，因此本文介绍的系统是在Vicon官方开放的sdk基础上进行的二次开发以满足本实验系统以及其他特定种类机器人的需求。本文定位系统设计的主要工作是开发了一款服务器端软件，软件集成了空间机器人的数据采集，分析，封装，转发，显示，存储等功能。开发环境为\textbf{Windows7}操作系统下的\textbf{visual studio 2013}编辑器，采用\textbf{MFC}框架。
+\section{多个机器人丢失仿真对比}
+虽然单个机器人丢失的情况验证了本文算法的有效性和可行性，但是实际情况中可能存在不止一个机器人丢失的情况。这些丢失机器人可能相互独立，可能互为邻居。然而我们假设丢失的机器人至少有一个邻居依然存在编队网络中。因为本文算法是完全分布式实现的，机器人只能和邻居通信，也只有机器人的邻居能够感知到它的存在于丢失。因此如果丢失的机器人所有邻居也全部丢失，则没有机器人能够感知到它的丢失，修复也就无法进行了。
 
-对于刚体结构的机器人和柔性结构的机器人Tracker和Nexus提供的数据形式不同，因此针对两类需求分别设计了不同的数据处理方式以及UI显示界面。在程序启动时需要根据具体需求选择不同的应用模式，如图\ref{fig:select_mode}所示，软件分为ViconSystem\_Nexus模式和ViconSystem\_Tracker模式，分别针对Nexus软件和Tracker软件使用。
+图\ref{fig:random_multi}是在多机器人丢失的情况下应用随机自修复算法进行自修复所选择的修复路径。图中分别对应丢失2个，3个，4个，5个机器人时的修复路径。由于随机自修复算法随机性比较大，因此这是每种情况下的一次修复路径选择。
+\begin{figure*}[!htbp]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[丢失两个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-7a.png}} &
+		\hspace{1cm}
+		\subfigure[丢失三个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-7b.png}} \\
+		\subfigure[丢失四个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-7c.png}} &
+		\hspace{1cm}
+		\subfigure[丢失五个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-7d.png}}	
+	\end{tabular}
+	\bicaption[fig:random_multi]{随机自修复算法针对多个丢失机器人的修复路径选择}{随机自修复算法针对多个丢失机器人的修复路径选择}{Fig}{The repairing paths of random self-healing algorithm for multiple failed robots.}
+\end{figure*}
+
+由于随机性的原因，某些修复路径包含的修复机器人会很多，这样就会导致多个机器人丢失后，整个编队过多机器人参与修复过程，这无论从编队的任务执行效率还是能量的消耗等方面都会造成不理的影响。而且在图\ref{fig:random_multi}(d)中由于3条修复路径使用两个度极小机器人，因此导致一条修复路径的最后一个修复机器人的空缺位置没有一个度极小机器人来填补，造成修复不完全的问题。这都是在随机自修复算法下会产生的问题。
+
+图\ref{fig:local_multi}是在多机器人丢失的情况下应用局部最优自修复算法进行自修复所选择的修复路径。可以看到在引入梯度后多个丢失机器人的修复路径不会冲突，所以不会造成修复不完全的问题。同时还能够相对减少修复机器人的个数。
+
+\begin{figure*}[!h]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[丢失两个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-8a.png}} &
+		\hspace{1cm}
+		\subfigure[丢失三个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-8b.png}} \\
+		\subfigure[丢失四个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-8c.png}} &
+		\hspace{1cm}
+		\subfigure[丢失五个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-8d.png}}
+	\end{tabular}
+	\bicaption[fig:local_multi]{局部最优自修复算法针对多个丢失机器人的修复路径选择}{局部最优自修复算法针对多个丢失机器人的修复路径选择}{Fig}{The repairing paths of local optimal self-healing algorithm for multiple failed robots.}
+\end{figure*}
+	
+局部最优自修复算法的目的主要是在改善编队同步性过程中实现修复路径的最短，因此在牺牲了同步性改善效果之后针对每一个丢失机器人应该用最短的修复路径进行修复，然而在某些情况下该算法无法达到修复路径最短。当两个丢失机器人互为邻居时，可能会造成一个丢失机器人的最短修复路径包含另一个丢失机器人，如图\ref{fig:local_multi}(c)所示。此时就无法保证这个丢失机器人的修复路径最短。
+
+图\ref{fig:global_multi}是在多机器人丢失的情况下应用全局最优自修复算法进行自修复所选择的修复路径。根据本文的梯度扩散规则以及自修复算法，每一个丢失机器人都可以最终等效成由编队中度最小机器人修复。根据引理\ref{lem:degree_syn},可以实现编队同步性改善全局最优。
+\begin{figure*}[]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[丢失两个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-9a.png}} &
+		\hspace{1cm}
+		\subfigure[丢失三个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-9b.png}} \\
+		\subfigure[丢失四个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-9c.png}} &
+		\hspace{1cm}
+		\subfigure[丢失五个机器人]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-9d.png}}
+	\end{tabular}
+	\bicaption[fig:global_multi]{全局最优自修复算法针对多个丢失机器人的修复路径选择}{全局最优自修复算法针对多个丢失机器人的修复路径选择}{Fig}{The repairing paths of global optimal self-healing algorithm for multiple failed robots.}
+\end{figure*}
+
+图\ref{fig:multi_result}是3种算法应用在多个丢失机器人情况下的指标对比结果。仿真中分别针对丢失2、3、4、5个机器人的情况做10次重复试验，最终计算平均值，并记录最大最小值。从仿真结果可以看出，相比另两种算法本文算法具有最小的第二大特征值，即同步性改善效果最好。在修复机器人个数与修复机器人总移动距离上的仿真结果上局部最优自修复算法要略优于本文算法，主要是由于局部极小的问题，也因此使得同步性改善效果有限。根据每种情况下的10次重复试验结果可知，局部最优自修复算法与本文算法都是稳定的。另外从图\ref{fig:multi_result}(a)可知，在使用本文算法进行自修复的情况下，随着丢失机器人个数的增多，第二大特征值减小，同步性增强。这正好印证了文献\parencite{张飞2008移动机器人覆盖问题的研究}中所指出的机器人缺失对编队同步性的影响程度大小与缺失机器人的度以及缺失机器人数量的关系。即如图\ref{fig:sec_eigenvalue and failure ratio}所描述的关系，网络同步性随着编队网络中度最低机器人的缺失数量的增加而提高。
+
+以上多个丢失机器人全部都是处在非梯度源节点的状态，然而，如果机器人的运动速度比较慢，或者机器人邻居之间的距离比较长，那么机器人的修复时间就不容易忽略。有可能在机器人执行修复过程中发生故障以致缺失。针对这种情况，由于本文算法是完全分布式的，因此会继续按照本文算法的修复策略进行修复，即在编队中选择一条修复路径来修复缺失的修复机器人。图\ref{fig:repairing_robot_failed}是修复状态下的机器人缺失的自修复仿真过程。
+图\ref{fig:repairing_robot_failed}(a)中一个非梯度源节点状态下的机器人丢失，根据本文算法在编队中选出了一条同步性改善全局最优的自修复路径。在修复机器人执行修复过程中，其中某个修复机器人出现缺失，如图\ref{fig:repairing_robot_failed}(b)所示。此时缺失的修复机器人邻居中的非修复状态下的机器人进行竞选，竞选成功的机器人修复缺失的修复状态机器人，并在邻居中传递修复状态，不断传递修复状态直到编队中的梯度源节点也是度最小节点。此时选出了另一条修复路径，用来修复缺失的修复状态机器人，如图\ref{fig:repairing_robot_failed}(b)所示。最终编队中缺失的所有机器人都等效成由度最小机器人进行填补，根据引理\ref{lem:degree_syn}可知，实现同步性改善全局最优。
+\begin{figure*}[!htbp]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[第二大特征值仿真结果对比]{\includegraphics[width=7cm,height=5cm]{chapter5/figure5-10a.png}} 
+		\hspace{1cm}
+		\subfigure[修复机器人个数仿真结果对比]{\includegraphics[width=7cm,height=5cm]{chapter5/figure5-10b.png}} 
+	\end{tabular}
+\end{figure*}
+
+\begin{figure*}
+	\centering
+	\subfigure[修复机器人总移动距离仿真结果对比]{\includegraphics[width=7cm,height=5cm]{chapter5/figure5-10c.png}}
+	%	\end{tabular}
+	\bicaption[fig:multi_result]{多个丢失机器人仿真结果对比}{多个丢失机器人仿真结果对比}{Fig}{The comparation of simulation result for multiple failed robots.}
+\end{figure*}
+
+
+\begin{figure*}[!htbp]
+	\centering
+	\begin{tabular}{cc}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-11a.png}}
+		\hspace{1cm}
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-11b.png}} \\
+		\subfigure[]{\includegraphics[width=5cm,height=5cm]{chapter5/figure5-11c.png}}
+	\end{tabular}
+	\bicaption[fig:repairing_robot_failed]{修复状态机器人丢失自修复过程}{修复状态机器人丢失自修复过程}{Fig}{The self-healing process of repairing robot's failure.}
+\end{figure*}
+
+\begin{comment}
+\section{编队自修复实验}
+本文算法在第四章介绍的自主设计的实验系统上进行了实验验证。根据实际环境与设备条件，本实验采用6台Frontier \uppercase\expandafter{\romannumeral3}型自主移动机器人，按照6邻居网络模型编成图\ref{fig:experiment_topo}所示队形，这里将机器人进行编号以方便描述。
 \begin{figure}[!htbp]
 	\centering
-	\includegraphics[width=8cm,height=5.5cm]{chapter4/figure4-4.png}
-	\bicaption[fig:select_mode]{软件模式选择}{软件模式选择}{Fig}{Selection of software mode.}
+	\includegraphics[width=6cm,height=5cm]{chapter5/figure5-12.png}
+	\bicaption[fig:experiment_topo]{自修复实验编队模型}{自修复实验编队模型}{Fig}{The formation model of the self-healing experiment.}
 \end{figure}
-
-目前，由于ViconSystem\_Nexus模式下除软件的数据处理方式与部分UI界面与ViconSystem\_Tracker不同外其他功能类似，且数据种类不如ViconSystem\_Tracker模式下丰富。因此下文主要根据ViconSystem\_Tracker模式的软件开发进行介绍。
-
-图\ref{fig:software_diagram}描述了定位系统的软件结构层次。不同层对应系统不同部分。
-\begin{figure}[!htbp]
+从图中可知，1号机器人是编队中度最小的机器人，因此根据梯度扩散规则1号机器人是梯度源节点，其他单个机器人的丢失都将由它来进行修复。在编队中2号和4号机器人是度局部极小机器人。若按照文献\parencite{liu2015gradient}中的梯度扩散规则，则2号和4号机器人也是梯度源节点并且无法得到更新。在实验中我们另5号机器人丢失，如果按照文献\parencite{liu2015gradient}的自修复规则，最终会由2号机器人进行修复，修复后的编队如图\ref{fig:local_experiment_result}所示。
+\begin{figure}
 	\centering
-	\includegraphics[width=4cm,height=6cm]{chapter4/figure4-5.png}
-	\bicaption[fig:software_diagram]{软件结构层次图}{软件结构层次图}{Fig}{Software structure level diagram.}	
+	\includegraphics[width=6cm,height=5cm]{chapter5/figure5-13.png}
+	\bicaption[fig:local_experiment_result]{局部最优自修复算法实验结果}{局部最优自修复算法实验结果}{Fig}{The experiment result of local optimal self-healing algorithm.}
 \end{figure}
 
-\indent \textbf{硬件驱动层与数据采集层:}这两层对应Vicon运动捕捉系统的硬件设施与Tracker应用软件。Vicon系统服务器驱动10台运动捕捉相机，对相机进行标定之后，在Tracker软件中根据识别的反光球标记机器人并命名。运动捕捉相机将采集的数据上传到数据中心，在数据中心中对相机数据进行处理，计算出空间中各个机器人的位姿信息。\\
-\indent \textbf{数据处理层与通信层：}本文所开发的软件主要是属于这两层。软件通过sdk提供的接口将数据中心计算的位姿信息获取到，然后进一步对数据进行处理，显示、存储、以及封装成应用层需要的数据形式。在通信层将封装好的数据通过局域网内的wifi传输给应用层。\\
-\indent \textbf{应用层：}这一层主要对应机器人，如何使用数据取决于机器人要实现的功能。
-
-图\ref{fig:flow_chart}是程序设计的流程图，程序采用多线程设计，主要分为数据采集与处理线程和数据传输线程，在两个线程之间存在数据同步。
-\begin{figure}[!htbp]
+\begin{figure*}[!htbp]
 	\centering
-	\includegraphics[width=8cm,height=7cm]{chapter4/FlowChart.png}
-	\bicaption[fig:flow_chart]{定位系统程序设计流程图}{定位系统程序设计流程图}{Fig}{The program flow chart of positioning system software.}
-\end{figure}
+	\subfigure[]{\includegraphics[width=5cm,height=4cm]{chapter5/figure5-14a.png}}
+	\subfigure[]{\includegraphics[width=5cm,height=4cm]{chapter5/figure5-14b.png}}
+	\subfigure[]{\includegraphics[width=5cm,height=4cm]{chapter5/figure5-14c.png}}
+	\subfigure[]{\includegraphics[width=5cm,height=2.5cm]{chapter5/figure5-14d.png}}
+	\bicaption[fig:global_experiment_process]{全局最优自修复算法实验过程}{全局最优自修复算法实验过程}{Fig}{The experiment process of global optimal self-healing algorithm.}
+\end{figure*}
 
-图\ref{fig:software_ui}是软件的用户界面。
-\begin{figure}[!htbp]
+若采用本文算法，则自修复过程如图\ref{fig:global_experiment_process}所示，在5号机器人丢失后，根据竞选机制，3号机器人会竞选成功，成为第一步的修复机器人，填补5号机器人的空缺位置，5号机器人会在邻居中选取下一步的修复机器人并将修复状态传递给它。根据修复机器人选取规则，1号机器人会被选为下一步的修复机器人，填补3号机器人的空缺。1号机器人是全局度最小机器人，因此修复状态传递结束。修复完成后的编队如图\ref{fig:global_experiment_process}(d)。
+\begin{figure*}[!htbp]
 	\centering
-	\includegraphics[width=10cm,height=8cm]{chapter4/figure4-6.png}
-	\bicaption[fig:software_ui]{定位系统ViconSystem\_Tracker模式软件界面}{定位系统ViconSystem\_Tracker模式软件界面}{Fig}{The user interface of ViconSystem\_Tracker mode.}
-\end{figure}
-
-软件实现的主要功能有：\\
-\indent 1)实现目标在空间中的位置、旋转矢量、旋转矩阵、四元数、欧拉角等数据的实时采集与显示。\\
-\indent 2)支持多客户端链接，并实时发送以上数据到客户端，发送的数据可以按照需求在数据选择框中进行勾选。\\
-\indent 3)数据发送方式支持TCP协议和UDP协议。\\
-\indent 4)支持发送周期可调(单位ms)，系统初始默认周期为100ms。\\
-\indent 5)支持数据本地存储，方便离线分析。数据存储的类型与发送给客户端的数据类型同步，都是根据在数据选择框中所勾选的数据进行处理。数据本地记录的周期可调，默认为10ms。
-
-ViconSystem\_Tracker模式主要是针对刚体在空间中的位姿数据获取，每一个刚体需要贴3个以上的反光球。获取到的数据是整个刚体的位姿数据。例如空间位置是刚体上所有反光球位置的平均值。但是考虑柔性结构的机器人，它在空间中会发生形变，因此我们想要得到的数据是柔性结构的每一点的位置数据。ViconSystem\_Nexus即是为此需求而设计，背后依托的是Vicon运动捕捉系统的Nexus软件。在ViconSystem\_Nexus下没有各种不同的位姿数据，只显示每个反光球在空间中的位置数据。其他功能与ViconSystem\_Tracker模式下类似，因此不再具体介绍。软件用户界面如图\ref{fig:software_ui2}所示。
-\begin{figure}[!htbp]
-	\centering
-	\includegraphics[width=10cm,height=8cm]{chapter4/figure4-7.png}
-	\bicaption[fig:software_ui2]{定位系统ViconSystem\_Nexus模式软件界面}{定位系统ViconSystem\_Nexus模式软件界面}{Fig}{The user interface of ViconSystem\_Nexus mode.}
-\end{figure}
-
-\subsection{机器人个体与通信系统}
-机器人个体控制主要是在ASUS Eee PC 900HA笔记本电脑上实现第3章所描述的自修复算法，开发环境为vc6.0。通过串口向基于DSP实现的运动控制板发送速度命令。利用ZigBee与邻居进行通信，同时通过ZigBee与远程控制端进行交互。图\ref{fig:clientSoftware}是机器人个体控制的用户界面，继承了参数设置，状态显示，运动控制的功能。
-
-\begin{figure}[!htbp]
-	\centering
-	\includegraphics[width=10cm,height=6cm]{chapter4/figure4-8.png}
-	\bicaption[fig:clientSoftware]{机器人个体控制的软件用户界面}{机器人个体控制的软件用户界面}{Fig}{The user interface of robot client software.}
-\end{figure}
-
-\subsection{远程控制系统}
-远程控制系统主要是通过串口连接ZigBee网络的协调器，利用协调器向编队网络发送运动控制指令以及少量数据，同时接受来自所有机器人的状态信息并显示，图\ref{fig:RopSoftware}是远程控制端的用户界面。
-
-\begin{figure}[!htbp]
-	\centering
-	\includegraphics[width=10cm,height=6cm]{chapter4/figure4-9.png}
-	\bicaption[fig:RopSoftware]{远程控制系统软件用户界面}{远程控制系统软件用户界面}{Fig}{The user interface of romote operation software.}
-\end{figure}
+	\begin{tabular}{cc}
+		\subfigure[]{\includegraphics[width=8cm,height=4cm]{chapter5/figure5-15aaa.png}} & 
+		\subfigure[]{\includegraphics[width=8cm,height=4cm]{chapter5/figure5-15bbb.png}} \\
+		\subfigure[]{\includegraphics[width=8cm,height=4cm]{chapter5/figure5-15ccc.png}} &
+		\subfigure[]{\includegraphics[width=8cm,height=4cm]{chapter5/figure5-15ddd.png}}
+	\end{tabular}
+	\bicaption[fig:real_experiment]{真实实验中多机器人编队的同步性改善全局最优自修复过程}{真实实验中多机器人编队的同步性改善全局最优自修复过程}{Fig}{The process of global optimal synchroniation improvement self-healing in real experiment.}
+\end{figure*}
+图\ref{fig:real_experiment}展示了真实实验场景及过程，图中左半部分是实际Frontier \uppercase\expandafter{\romannumeral3}型自主移动机器人组成的编队队形，右半部分是在Vicon运动捕捉系统上观测到的编队图像。实验中人为取走编队中的机器人使其失效，编队能够自主的完成预期的修复效果，多次实验均能保证修复效果，证明本文算法的实际可行性和稳定性。
+\end{comment}
 
 \section{本章小结}
-本章介绍了多机器人编队自修复实验平台的设计。实验平台主要包括定位系统，机器人个体控制与通信系统，远程控制系统。其中着重介绍了定位系统的设计，依托Vicon光学运动捕捉系统，设计了功能丰富，适用不同机器人，可扩展的定位系统服务器端软件。机器人个体与通信系统实现了本文的同步性改善全局最优的分布式递归自修复算法。远程控制系统实现对编队的远程统一控制与转态回显。
+本文主要对本文所提的同步性改善全局最优的完全分布式自修复算法进行了仿真和实验验证。仿真中将本文算法与随机自修复算法和局部最优自修复算法在同步性，修复机器人个数，修复机器人总移动距离等指标上进行了对比
+。实现了本文算法在单个机器人丢失和多个机器人丢失情况下的自修复过程，同时再现了随机自修复算法和局部最优自修复算法在两种情况下的仿真。分析出随机自修复算法的随机性过大问题以及局部最优自修复算法的局部极小问题。在两种情况下的仿真结果对比中均显示出本文算法在改善同步性方面的优越性。另外还考虑了机器人在执行修复任务过程中出现缺失的自修复情况，本文算法仍然能够选出一条最优的修复路径保证同步性改善的全局最优。
+

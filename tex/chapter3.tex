@@ -51,7 +51,7 @@
 	\bicaption[fig:Gradient_Sample]{应用梯度实现多机器人自组织行为}{应用梯度实现多机器人自组织行为}{Fig}{Using Gradient to implement multi-robot self-assembly behaviors.}
 \end{figure}
 
-为对比有无梯度信息在多机器人编队自修复中的差别，文献\parencite{张飞2008移动机器人覆盖问题的研究}和文献\parencite{liu2015gradient}分别实现了无梯度和有梯度的多机器人编队自修复算法。在文献\parencite{张飞2008移动机器人覆盖问题的研究}中，编队中机器人缺失后仅根据邻居机器人的度的信息选择修复机器人，选取规则为：\\
+为对比有无梯度信息在多机器人编队自修复中的差别，在本团队前期工作中\supercite{张飞2008移动机器人覆盖问题的研究,liu2015gradient,居建军2015多机器人编队自修复算法设计与实现}分别实现了无梯度和有梯度的多机器人编队自修复算法。在文献\parencite{张飞2008移动机器人覆盖问题的研究}中，编队中机器人缺失后仅根据邻居机器人的度的信息选择修复机器人，选取规则为：\\
 \indent 1) 如果缺失机器人$R_f$的邻居$R_j \in N_e(R_f)$的度小于$R_f$的度，即$R_j.Deg \leq R_f.Deg$,则机器人$R_j$成为缺失机器人$R_f$的候选修复机器人。所有满足条件的候选修复机器人组成集合：
 \begin{equation}
 	C(R_f) = \{ R_j | R_j.Deg \leq R_f.Deg, R_j \in N_e{R_f} \} 
