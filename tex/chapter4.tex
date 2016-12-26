@@ -62,7 +62,7 @@ Vicon 系统是非常准确和可靠的光学动作捕捉系统，它所提供�
 \section{系统设计}
 
 \subsection{定位系统}
-鉴于Vicon光学运动捕捉系统的强大功能，本系统的设计不只考虑用于多机器人编队自修复的定位需求，同时考虑本实验室的多种机器人如无人机、机械臂，软体手术机器人的空间定位需求而开发。另外在设计过程中充分考虑了功能的可扩展性，方便以后机器人种类的增加或者功能的变化。在几种机器人当中根据结构可以大致分为两类，一种是刚体机器人，如本实验所需的小车，无人机，机械臂。另一种是柔性机器人，如软体手术机器人。针对这两类需求，Vicon运动捕捉系统提供了两款应用软件Tracker和Nexus。在这两款软件上可以对Vicon摄像头进行命名、参数配置和调整、标定、目标选择与命名等操作，具体操作流程见附录1。然而这两款软件无法满足某些特定应用场景的需求，因此本文介绍的系统是在Vicon官方开放的sdk基础上进行的二次开发以满足本实验系统以及其他特定种类机器人的需求。本文定位系统设计的主要工作是开发了一款服务器端软件，软件集成了空间机器人的数据采集，分析，封装，转发，显示，存储等功能。开发环境为\textbf{Windows7}操作系统下的\textbf{visual studio 2013}编辑器，采用\textbf{MFC}框架。
+鉴于Vicon光学运动捕捉系统的强大功能，本系统的设计不只考虑用于多机器人编队自修复的定位需求，同时考虑本实验室的多种机器人如无人机、机械臂，软体手术机器人的空间定位需求而开发。另外在设计过程中充分考虑了功能的可扩展性，方便以后机器人种类的增加或者功能的变化。在几种机器人当中根据结构可以大致分为两类，一种是刚体机器人，如本实验所需的小车，无人机，机械臂。另一种是柔性机器人，如软体手术机器人。针对这两类需求，Vicon运动捕捉系统提供了两款应用软件Tracker和Nexus。在这两款软件上可以对Vicon摄像头进行命名、参数配置和调整、标定、目标选择与命名等操作。然而这两款软件无法满足某些特定应用场景的需求，因此本文介绍的系统是在Vicon官方开放的sdk基础上进行的二次开发以满足本实验系统以及其他特定种类机器人的需求。本文定位系统设计的主要工作是开发了一款服务器端软件，软件集成了空间机器人的数据采集，分析，封装，转发，显示，存储等功能。开发环境为\textbf{Windows7}操作系统下的\textbf{visual studio 2013}编辑器，采用\textbf{MFC}框架。
 
 对于刚体结构的机器人和柔性结构的机器人Tracker和Nexus提供的数据形式不同，因此针对两类需求分别设计了不同的数据处理方式以及UI显示界面。在程序启动时需要根据具体需求选择不同的应用模式，如图\ref{fig:select_mode}所示，软件分为ViconSystem\_Nexus模式和ViconSystem\_Tracker模式，分别针对Nexus软件和Tracker软件使用。
 \begin{figure}[!htbp]
@@ -73,22 +73,23 @@ Vicon 系统是非常准确和可靠的光学动作捕捉系统，它所提供�
 
 目前，由于ViconSystem\_Nexus模式下除软件的数据处理方式与部分UI界面与ViconSystem\_Tracker不同外其他功能类似，且数据种类不如ViconSystem\_Tracker模式下丰富。因此下文主要根据ViconSystem\_Tracker模式的软件开发进行介绍。
 
-图\ref{fig:software_diagram}描述了定位系统的软件结构层次。不同层对应系统不同部分。\\
+图\ref{fig:software_diagram}描述了定位系统的软件结构层次。不同层对应系统不同部分。
+\begin{figure}[!htbp]
+	\centering
+	\includegraphics[width=4cm,height=6cm]{chapter4/figure4-5.png}
+	\bicaption[fig:software_diagram]{软件结构层次图}{软件结构层次图}{Fig}{Software structure level diagram.}	
+\end{figure}
+
 \indent \textbf{硬件驱动层与数据采集层:}这两层对应Vicon运动捕捉系统的硬件设施与Tracker应用软件。Vicon系统服务器驱动10台运动捕捉相机，对相机进行标定之后，在Tracker软件中根据识别的反光球标记机器人并命名。运动捕捉相机将采集的数据上传到数据中心，在数据中心中对相机数据进行处理，计算出空间中各个机器人的位姿信息。\\
 \indent \textbf{数据处理层与通信层：}本文所开发的软件主要是属于这两层。软件通过sdk提供的接口将数据中心计算的位姿信息获取到，然后进一步对数据进行处理，显示、存储、以及封装成应用层需要的数据形式。在通信层将封装好的数据通过局域网内的wifi传输给应用层。\\
 \indent \textbf{应用层：}这一层主要对应机器人，如何使用数据取决于机器人要实现的功能。
 
+图\ref{fig:flow_chart}是程序设计的流程图，程序采用多线程设计，主要分为数据采集与处理线程和数据传输线程，在两个线程之间存在数据同步。
 \begin{figure}[!htbp]
 	\centering
-	\includegraphics[width=5cm,height=8cm]{chapter4/figure4-5.png}
-	\bicaption[fig:software_diagram]{软件结构层次图}{软件结构层次图}{Fig}{Software structure level diagram.}	
+	\includegraphics[width=8cm,height=7cm]{chapter4/FlowChart.png}
+	\bicaption[fig:flow_chart]{定位系统程序设计流程图}{定位系统程序设计流程图}{Fig}{The program flow chart of positioning system software.}
 \end{figure}
-
-图\ref{}是程序设计的流程图，程序采用多线程设计，主要分为数据采集线程，数据传输线程。
-
-\#
-需要一个流程图
-\#
 
 图\ref{fig:software_ui}是软件的用户界面。
 \begin{figure}[!htbp]

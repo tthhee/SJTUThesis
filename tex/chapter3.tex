@@ -2,19 +2,20 @@
 \chapter{同步性改善全局最优的递归自修复算法}
 
 \section{自修复算法目标}
-根据上文所述，当多机器人编队中度较高的机器人出现缺失时，会导致编队同步性下降。假设在图\ref{fig:修复路径对比}中,空缺位置表示出现机器人缺失，记缺失机器人为$R_f$,则缺失机器人的度${R_f}.Deg = 6$。由引理\ref{lem:degree_syn}可知。若用度小于$R_f.Deg$的机器人修复此缺失机器人，则会提高编队的同步性。若最终修复机器人为$R_r$,度为$R_r.Deg$。则$R_f.Deg-R_r.Deg$的值越大，同步性改善效果越好。因此，如果用编队中度最小的机器人去修复缺失机器人则会使同步性改善效果最优。
+根据上文所述，当多机器人编队中度较高的机器人出现缺失时，会导致编队同步性下降。假设在图\ref{fig:修复路径对比}中,空缺位置表示出现机器人缺失，记缺失机器人为$R_f$,则缺失机器人的度${R_f}.Deg = 6$。由引理\ref{lem:degree_syn}可知。若用度小于$R_f.Deg$的机器人修复此缺失机器人，则会提高编队的同步性。若最终修复机器人为$R_r$,度为$R_r.Deg$。则$R_f.Deg-R_r.Deg$的值越大，同步性改善效果越好。
+%因此，本文目标之一是用编队中度最小的机器人去修复缺失机器人，使得同步性改善效果最优。
 \begin{figure}[!htbp]
 	\centering
 	\includegraphics[width=8cm,height=8cm]{chapter3/figure3-1.png}
 	\bicaption[fig:修复路径对比]{不同修复路径对比}{不同修复路径对比}{Fig}{The comparation of different repairing paths.}
 \end{figure}
 
-如何找到一条从缺失机器人到度最小机器人的修复路径是本文算法的主要内容。在这里\textbf{修复路径}定义为从缺失机器人邻居中的某个机器人到编队中度最小机器人所经过的机器人序列$\{R_1,R_2,\dots,R_{k-1},R_k\}$。修复路径上的机器人成为修复机器人，其中$R_1$为缺失机器人邻居中的某个机器人,$R_k$为编队中某个度最小的机器人。\textbf{修复路径的长度}定义为修复路径中包含的修复机器人的个数。在图\ref{fig:修复路径对比}中，每一个虚线框中的机器人序列都属于一条修复路径。从图中可以看到不同的修复路径包含的修复机器人个数不同。定义包含修复机器人个数最少的修复路径为\textbf{最优修复路径},图中绿色虚线框内的修复路径即为一条最优修复路径。如果一条修复路径中的修复机器人序列为$\{R_1,R_2,\dots,R_{k-1},R_k\}$,则对应的递归自修复步骤如下：\\
+如何找到一条从缺失机器人到度最小机器人的修复路径是本文算法中主要解决的问题。在这里\textbf{修复路径}定义为从缺失机器人邻居中的某个机器人到编队中度最小机器人所经过的机器人序列$\{R_1,R_2,\dots,R_{k-1},R_k\}$。修复路径上的机器人成为修复机器人，其中$R_1$为缺失机器人邻居中的某个机器人,$R_k$为编队中某个度最小的机器人。\textbf{修复路径的长度}定义为修复路径中包含的修复机器人的个数。在图\ref{fig:修复路径对比}中，每一个虚线框中的机器人序列都属于一条修复路径。从图中可以看到不同的修复路径包含的修复机器人个数不同。定义包含修复机器人个数最少的修复路径为\textbf{最优修复路径},图中绿色虚线框内的修复路径即为一条最优修复路径。如果一条修复路径中的修复机器人序列为$\{R_1,R_2,\dots,R_{k-1},R_k\}$,则本文采用的递归自修复过程如下：\\
 \indent (1)从缺失机器人的邻居中选择一个修复机器人$R_1$,$R_1$去填补缺失机器人留下的空缺位置，并与缺失机器人邻居重新建立。\\
 \indent (2)$R_1$从其邻居中选择一个修复机器人$R_2$用来填补$R_1$移动后留下的空缺位置，并与$R_1$的邻居重新建立连接。\\
 \indent (3)重复上述过程，直到编队中的度最小机器人$R_k$填补了$R_{k-1}$留下的空缺位置。\\
 第(3)步结束后，整个修复机器人序列的递归自修复过程结束。在这一过程中，修复机器人的空间位置和网络邻居变化如下：\\
-空间位置变化：\\
+空间位置变化：
 \begin{equation}
 	P_{R_i} = 
 	\begin{cases}
@@ -31,7 +32,16 @@
 	\end{cases}
 \end{equation}
 
-由于本文采用递归自修复方式实现分布式控制，因此编队中机器人无法知道距离缺失机器人最近的度最小机器人在哪里。即如何找到一条最优的修复路径？
+%本文采用上述递归自修复方式实现自修复过程，编队中机器人无法直接确定距离缺失机器人最近的度最小机器人在哪里。所以本文算法另一目标是找到一条最优的修复路径。
+综上所述，当多机器人编队中机器人缺失时，本文自修复算法实现目标如下：\\
+\indent\indent 1) 修复编队网络拓扑结构。\\
+\indent\indent 2) 实现同步性改善全局最优。\\
+\indent\indent 3) 自修复过程实现完全分布式，且修复路径最优。\\
+
+本文算法的实现主要基于以下假设：\\
+\indent\indent 1) 机器人缺失后，整个编队网络仍然保持连通。\\
+\indent\indent 2) 机器人之间的通信速率足够快，从而忽略通信时间消耗。\\
+\indent\indent 3) 缺失机器人不影响其他机器人的运动。
 
 \section{梯度的引入与分析}
 根据前人的研究，梯度常被用于通过邻居之间的交互估计分布式距离的一种手段\supercite{SciencePaper,nagpal2003organizing,stoy2006using,rubenstein2012kilobot,meng2011autonomous,terada2008automatic}，多应用于有限通信范围下的多传感器网络\supercite{nagpal2003organizing}以及多机器人自组织行为\supercite{SciencePaper,stoy2006using}等问题。主要是通过个体间的局部交互来控制整体。文献\parencite{SciencePaper,stoy2006using,rubenstein2012kilobot,terada2008automatic}中，首先定义一个梯度种子节点，由种子节点产生一个初始梯度值，接下来梯度值从种子节点开始扩散，邻居节点接收到扩散的梯度信息后更新自己的梯度信息，一般情况是如果接受到的梯度小于自身已有的梯度值(自身梯度值初始化为一个很大的数)，则更新自身梯度值，否则维持自身梯度值不变。接下来再将自身保持的梯度值向邻居扩散，重复此过程，最终整个网络会形成稳定的梯度分布。每个机器人利用自身的梯度信息便可以知道自己与梯度种子节点的距离。图\ref{fig:Gradient_Sample}展示的是文献\parencite{SciencePaper}中的梯度应用示例。在多机器人自组织行为中，预先指定一个梯度种子节点的梯度值以及它的全局坐标，利用梯度扩散与更新过程在网络中形成稳定的梯度分布，在扩散与更新过程中，每个机器人只与它相邻的机器人通信。最终每个机器人根据自身的梯度值以及梯度种子节点的全局坐标估计出自己的全局坐标，从而完成自组织任务。
@@ -42,11 +52,11 @@
 \end{figure}
 
 为对比有无梯度信息在多机器人编队自修复中的差别，文献\parencite{张飞2008移动机器人覆盖问题的研究}和文献\parencite{liu2015gradient}分别实现了无梯度和有梯度的多机器人编队自修复算法。在文献\parencite{张飞2008移动机器人覆盖问题的研究}中，编队中机器人缺失后仅根据邻居机器人的度的信息选择修复机器人，选取规则为：\\
-\indent 1) 如果缺失机器人$R_f$的邻居$R_j \in N_e(R_f)$的度小于$R_f$的度，即$R_j.Deg \leq R_f.Deg$,则机器人$R_j$成为缺失机器人$R_f$的候选修复机器人。所有满足条件的候选修复机器人组成集合：\\
+\indent 1) 如果缺失机器人$R_f$的邻居$R_j \in N_e(R_f)$的度小于$R_f$的度，即$R_j.Deg \leq R_f.Deg$,则机器人$R_j$成为缺失机器人$R_f$的候选修复机器人。所有满足条件的候选修复机器人组成集合：
 \begin{equation}
 	C(R_f) = \{ R_j | R_j.Deg \leq R_f.Deg, R_j \in N_e{R_f} \} 
 \end{equation} 
-\indent 2) 在集合$C(R_f)$中选择度最小的机器人作为缺失机器人$R_f$的修复机器人，如果存在多个度最小机器人，则随机选择一个作为修复机器人。\\
+\indent 2) 在集合$C(R_f)$中选择度最小的机器人作为缺失机器人$R_f$的修复机器人，如果存在多个度最小机器人，则随机选择一个作为修复机器人。
 
 本文中称此算法为随机递归自修复算法。图\ref{fig:Random_self-healing}中展示了在多机器人编队拓扑中出现一个机器人丢失，应用随机自修复算法进行修复的几种情况。
 \begin{figure*}[!htbp]
@@ -65,7 +75,7 @@
 
 从图中可以看出随机递归自修复算法在实现自修复时选出的修复路径有很大的随机性，且不同的修复路径性能差异较大。造成这种现象的原因主要是在修复机器人选取规则2中，当存在多个满足条件的候选修复机器人时随机选择其中一个，由此对修复路径造成很大的随机性。
 
-为避免在自修复中引入过大的随机性，本研究团队在之前工作中引入梯度，大大降低了随机性，提高了自修复算法的性能。如图\ref{fig:Gradient_self-healing}所示，是在编队网络中引入梯度，形成稳定的梯度分布，算法中与前人不同的是并不事先指定一个梯度种子节点，而是节点根据自己在拓扑网络中邻居数量判断自己是否为梯度种子节点(又称为梯度源节点)。即梯度源节点的定义如下：\\
+为避免在自修复中引入过大的随机性，本研究团队在之前工作中引入梯度，大大降低了随机性，提高了自修复算法的性能。如图\ref{fig:Gradient_self-healing}所示，是在编队网络中引入梯度，形成稳定的梯度分布，算法中与前人不同的是并不事先指定一个梯度种子节点，而是节点根据自己在拓扑网络中邻居数量判断自己是否为梯度种子节点(又称为梯度源节点)。即梯度源节点的定义如下：
 \begin{defn}
 	\label{defn:gradient_source}
 	若编队中机器人$R_i$的度满足：\\
@@ -173,10 +183,10 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 \indent $R_i.Gra(t-1)$ —— $t-1$时刻机器人$R_i$的梯度值。\\
 \indent $R_i.DS(t-1)$ —— $t-1$时刻机器人$R_i$的梯度源节点的度。\\
 \indent $\delta$ —— 机器人单位时间的梯度增量。\\
-\indent $\Delta$ —— 邻居间扩散的梯度增量。\\
+\indent $\Delta$ —— 邻居间扩散的梯度增量。
 
 1.梯度更新：\\
-\indent 若机器人接收到的信息对中梯度源节点的度值小于自身梯度源节点的度值，则将自身的梯度源节点的度值更新为接收到的梯度源节点的度值，自身梯度值更新为接收到的梯度值加上邻居间的梯度增量。如果接收到的信息对中梯度源节点的度值等于自身梯度源节点的度值，则比较梯度值，若自身梯度值大于信息对中的梯度值加上梯度增量，则将自身梯度值更新为信息对中的梯度值与梯度增量的和。\\
+\indent 若机器人接收到的信息对中梯度源节点的度值小于自身梯度源节点的度值，则将自身的梯度源节点的度值更新为接收到的梯度源节点的度值，自身梯度值更新为接收到的梯度值加上邻居间的梯度增量。如果接收到的信息对中梯度源节点的度值等于自身梯度源节点的度值，则比较梯度值，若自身梯度值大于信息对中的梯度值加上梯度增量，则将自身梯度值更新为信息对中的梯度值与梯度增量的和。
 
 2.梯度源节点更新:\\
 \indent 若自身为梯度源节点，且接收到的信息对中梯度源节点的度值小于自身的度值，则将自身状态转移到非梯度源节点状态，并更新相应的梯度源节点的度和梯度值。
@@ -219,7 +229,7 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 	\subfigure[t=2]{\includegraphics[width=4cm,height=4cm]{chapter3/figure3-8c.png}}
 	\bicaption[fig:gradient_diffusion]{梯度扩散——梯度更新与梯度源节点的更新}{梯度扩散——梯度更新与梯度源节点的更新}{Fig}{Gradient diffusion —— gradient update and gradient source node update.}
 \end{figure*}
-由上述梯度扩散过程及图\ref{fig:gradient_diffusion}可的如下结论：\\
+由上述梯度扩散过程及图\ref{fig:gradient_diffusion}可的如下结论：
 
 \begin{cor}
 	\label{cor:sourcegradient_leastdegree}
@@ -237,7 +247,7 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 \subsubsection{竞选机制}
 候选修复机器人没有办法实现任意两两机器人之间的通信，所以每个机器人没有办法一次性获得所有其他候选修复机器人的信息。然而，处于候选修复状态下的机器人相互通信的目的就是要选择出最佳的修复机器人。因此，候选修复机器人没有必要同时获取到其他所有的候选修复机器人的信息，而只要能够得到所有候选修复机器人中最佳修复机器人信息即可。然后通过判断最佳修复机器人是否是自己即可最终确定出唯一的修复机器人。
 \begin{defn}
-	最佳修复机器人$R_b$为所有处于候选修复状态的机器人之中梯度值最小的修复机器人，即满足：\\
+	最佳修复机器人$R_b$为所有处于候选修复状态的机器人之中梯度值最小的修复机器人，即满足：
 	\[
 		\forall R_i \in N_e(R_f), R_b.Gra \leq R_i.Gra
 	\]
@@ -247,7 +257,7 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 具体竞选机制如下：\\
 \indent 1).每个候选修复机器人保存一个当前最佳修复机器人信息$M$，此信息中包含机器人的编号($id$)以及梯度值($Gra$)，并在初始时刻将此信息设置为自身的编号和梯度值，同时开启一个计时器$T$。\\
 \indent 2).每个机器人将自身保存的最佳修复机器人信息发送给邻居。\\
-\indent 3).候选修复机器人如果接收到邻居传来的最佳修复机器人信息$M_r$，则将自身的最佳修复机器人信息与其进行比较，如比较结果满足:\\
+\indent 3).候选修复机器人如果接收到邻居传来的最佳修复机器人信息$M_r$，则将自身的最佳修复机器人信息与其进行比较，如比较结果满足:
 \[
 	(M_r.Gra < M.Gra)\ ||\ (M_r.Gra == M.Gra\ \&\& \  M_r.id < M.id) 
 \]
@@ -278,20 +288,19 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 		\Require $M_r \leftarrow$ 邻居机器人发来的最佳修复机器人的信息
 		\Ensure $IsRepairingRobot \leftarrow$ 是否为修复机器人，$true \leftarrow $是， $ false \leftarrow$ 不是
 		\Function {CampaignForRepairingRobot}{$M_r$}
-			\State $T \gets T+1$					
-			\algstore{CampaignForRepairingRobot}
-	\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-	\begin{algorithmic}[1]
-		\algrestore{CampaignForRepairingRobot}
+			\State $T \gets T+1$				
 			\If {$T < T_{max}$}
 				\If {$M_r.Gra < M.Gra$}
-					\State $M.Gra \gets M_r.Gra$
-					\State $M.id \gets M_r.id$	
-				\Else 
-					\If {$M_r.Gra == M.Gra \  \&\& \  M_r.id < M.id$}
+				\State $M.Gra \gets M_r.Gra$
+				\State $M.id \gets M_r.id$		
+			\Else 
+				\If {$M_r.Gra == M.Gra \  \&\& \  M_r.id < M.id$}
+%			\algstore{CampaignForRepairingRobot}
+%	\end{algorithmic}
+%\end{algorithm}
+%\begin{algorithm}
+%	\begin{algorithmic}[1]
+%		\algrestore{CampaignForRepairingRobot}
 						\State $M.Gra \gets M_r.Gra$
 						\State $M.id \gets M.id$
 					\EndIf
@@ -320,7 +329,7 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 \subsubsection{竞选时间}
 \begin{lem}
 	\label{lem:negotiation_time}
-	最大竞选时间$T_{max}$的选择与候选修复机器人的个数$d_f$和邻居之间的通信时间$t_c$有关，满足：\\
+	最大竞选时间$T_{max}$的选择与候选修复机器人的个数$d_f$和邻居之间的通信时间$t_c$有关，满足：
 	\[
 		T_{max} > d_f t_c/2
 	\]
@@ -353,13 +362,6 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 			\While {$i < len$}
 				\If {$Neighbor[i].Gra < NextRepairingRobot.Gra$}
 					\State $NextRepairingRobot \gets Neighbor[i]$
-					\algstore{TransmitRepairingStatus}
-	\end{algorithmic}
-\end{algorithm}
-
-\begin{algorithm}
-	\begin{algorithmic}
-				\algrestore{TransmitRepairingStatus}
 				\Else
 					\If {$Neighbor[i].Gra = NextRepairingRobot.Gra \ \&\& \ Neighbor[i].id < NextRepairingRobot.id$}
 						\State $NextRepairingRobot \gets Neighbor[i]$
@@ -367,6 +369,12 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 				\EndIf
 				\State $i \gets i+1$
 			\EndWhile
+%					\algstore{TransmitRepairingStatus}
+%	\end{algorithmic}
+%\end{algorithm}
+%\begin{algorithm}
+%	\begin{algorithmic}
+%				\algrestore{TransmitRepairingStatus}
 			\State \Return{$NextRepairingRobot$}
 		\EndFunction			
 	\end{algorithmic}	
@@ -388,7 +396,6 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 \end{figure*}
 
 \section{算法分析}
-
 
 \subsection{同步性分析}
 本文自修复算法的主要目的就是提高编队在机器人缺失后的运动同步性。前文已经指出编队拓扑邻接矩阵的第二大特征值$\lambda_2$可以用来衡量编队的同步性好坏。根据引理\ref{lem:degree_syn}，需要用编队中全局度最小的机器人修复缺失机器人才会使得同步性改善全局最优。根据本文自修复算法，对于编队同步性的改善情况可提出以下引理。
@@ -419,7 +426,7 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 \end{lem}
 
 \subsection{修复时间分析}
-修复时间$t_r$是指从编队中出现机器人缺失到修复完成的时间。根据文献\parencite{张飞2008移动机器人覆盖问题的研究},对于递归自修复过程，修复时间$t_r$可定义为：\\
+修复时间$t_r$是指从编队中出现机器人缺失到修复完成的时间。根据文献\parencite{张飞2008移动机器人覆盖问题的研究},对于递归自修复过程，修复时间$t_r$可定义为：
 \begin{equation}
 	t_r = t_d + t_m = \sum_{i+1}^k t_{di} + t_m = t_{d1} + (k-1)t_{dk} + t_m
 \end{equation}

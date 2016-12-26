@@ -4,7 +4,7 @@
 %%==================================================
 
 \begin{abstract}
-现如今，机器人在我们的社会生产生活当中发挥着越来越大的作用，可以帮助人们从繁重工作或者简单重复性的工作中解脱出来以及在高温、低压、辐射等不适宜人作业的高危环境下工作。从而极大的提高了生产效率。然而随着工作环境以及任务越来越复杂，单个机器人的能力由于成本以及结构等因素而变得有限。相比单个机器人，多机器人系统由于其系统冗余，结构多变，配置简单等特点，可以降低系统单一成本，提高系统效率和鲁棒性，因而在某些作业环境下更具优势。
+现如今，机器人在我们的社会生产生活当中发挥着越来越大的作用，可以帮助人们从繁重工作或者简单重复性的工作中解脱出来并且能够在高温、低压、辐射等不适宜人作业的高危环境下工作。从而极大的提高了生产效率。然而随着工作环境以及任务越来越复杂，单个机器人的能力由于成本以及结构等因素而变得有限。相比单个机器人，多机器人系统由于其系统冗余，结构多变，配置简单等特点，可以降低系统单一成本，提高系统效率和鲁棒性，因而在某些作业环境下更具优势。
 
 在某些应用场景下，多机器人经常需要根据任务组成特定的队形，即多机器人编队技术。多机器人编队是指多个自主移动机器人在运动过程中保持某种队形的技术。这一技术被广泛应用在军事侦察、地形搜索、灾难救援、货物搬运等复杂任务。在这些工作任务中，由于机器人之间需要通信与协作，因此编队的同步性就显得尤为重要。例如在协同搬运过程中，如果机器人之间的运动不同步，则很有可能导致搬运的物体受力不均而造成损坏，或者伤害机器人自身的机械结构。然而由于外在环境的影响，机器人编队中可能会出现各别机器人发生故障，从而导致编队运动的同步性下降。因此，为减小因外在环境导致机器人缺失而对编队运动同步性造成的影响，需要机器人网络在出现机器人缺失时能够自行修复以将机器人出现故障对编队网络的影响降到最低。即需要机器人网络拥有自修复的能力。
 
@@ -12,27 +12,26 @@
 
 1.考虑多机器人编队网络中不同机器人对编队同步性的影响，提出了新的梯度生成与扩散机制，并在编队中形成稳定的梯度分布。在此梯度分布下结合改进的网络拓扑切换规则，实现了多机器人编队网络中出现机器人缺失后，网络同步性改善达到最优。同时证明了在保证同步性改善最优的情况下使得参与修复的机器人个数最少。
 
-2.利用状态机描述算法执行过程中机器人的动作行为。设计仿真描述机器人不同状态，同时根据仿真结果验证本文算法的合理性和有效性，
+2.利用状态机描述算法执行过程中机器人的动作行为。设计仿真描述机器人不同状态，同时根据仿真结果验证本文算法的合理性和有效性。
 
-3.设计了基于Vicon运动捕捉系统的定位实验平台，该平台能够满足不同种类机器人，不同任务的定位需求。在此平台下结合自主研发的机器人通信及控制系统，设计了多机器人编队自修复实验。实验成功验证了本文算法的有效性。
+3.设计了自修复实验平台，该平台包括定位系统，机器人个体控制与通信系统，远程控制系统。在此平台下设计了多机器人编队自修复实验。实验成功验证了本文算法的有效性。
 
 
 \keywords{\large 多机器人编队 \quad 自修复 \quad 同步性最优 \quad 分布式控制 \quad 状态机}
 \end{abstract}
 
 \begin{englishabstract}
+Nowadays, robots are playing a more and more important role in our social production and life. They can help people get rid of heavy work or simple repetitive work and be able to work in high temperature, low pressure, radiation and other unsuitable human high-risk Environment. Thus greatly improving the production efficiency. However, as the work environment and tasks become more and more complex, the ability of a single robot due to cost and structure and other factors become limited. Compared with the single robot, the multi-robot system can reduce the single cost of the system, improve the efficiency and robustness of the system because of its redundant system, changeable structure and simple configuration. So it is more advantageous in certain operating environment.
 
-An imperial edict issued in 1896 by Emperor Guangxu, established Nanyang Public School in Shanghai. The normal school, school of foreign studies, middle school and a high school were established. Sheng Xuanhuai, the person responsible for proposing the idea to the emperor, became the first president and is regarded as the founder of the university.
+In some applications, multiple robots often need to form a specific formation according to the task, that is, multi-robot formation technology. Multi-robot formation is a technique in which a plurality of autonomous mobile robots maintain certain formation during movement. This technology is widely used in military reconnaissance, terrain search, disaster relief, cargo handling and other complex tasks. In these tasks, because of the need for communication between robots and collaboration, so the synchronization of formation is particularly important. For example, during coordinated transport, if the movements between the robots are not synchronized, it is likely to cause damage to the objects being transported, or to damage the robot's own mechanical structure. However, due to the influence of the external environment, there may be some robot malfunction in the robot formation, which leads to the decrease of the synchronization of the formation movement. Therefore, in order to reduce the influence of the absence of robot on the formation synchronization, it is necessary to reconstruct the robot network to minimize the impact of robot failure on the formation network. Which requires the robot network has the ability of self-healing.
 
-During the 1930s, the university gained a reputation of nurturing top engineers. After the foundation of People's Republic, some faculties were transferred to other universities. A significant amount of its faculty were sent in 1956, by the national government, to Xi'an to help build up Xi'an Jiao Tong University in western China. Afterwards, the school was officially renamed Shanghai Jiao Tong University.
+In this paper, we focus on the problem of the absence of robots in the multi-robot formation network, which leads to the decrease of the synchronization of the formation system, and designs a perfectly distributed self-repairing algorithm with optimal network synchronization improvement. The algorithm can make the multi - robot formation network repair automatically when the robot is missing through the distributed control, and can improve the problem of the formation synchronization decrease due to the lack of robots. The main contributions of this paper are as follows:
 
-Since the reform and opening up policy in China, SJTU has taken the lead in management reform of institutions for higher education, regaining its vigor and vitality with an unprecedented momentum of growth. SJTU includes five beautiful campuses, Xuhui, Minhang, Luwan Qibao, and Fahua, taking up an area of about 3,225,833 m2. A number of disciplines have been advancing towards the top echelon internationally, and a batch of burgeoning branches of learning have taken an important position domestically.
+1.Considering the influence of different robots on the formation synchronization in multi - robot formation networks, a new gradient generation and diffusion mechanism is proposed, and a stable gradient distribution is formed in the formation. Under the gradient distribution, the improved network topology switching rule is adopted to realize the optimal network synchronization improvement after the robot is missing in the multi-robot formation network. It is also proved that the number of robots involved in restoration is minimized when the synchronization improvement is optimal.
 
-Today SJTU has 31 schools (departments), 63 undergraduate programs, 250 masters-degree programs, 203 Ph.D. programs, 28 post-doctorate programs, and 11 state key laboratories and national engineering research centers.
+2.The state machine is used to describe the behavior of the robot during the execution of the algorithm. The design simulation describes the different states of the robot, and validates the reasonableness and validity of the algorithm according to the simulation results.
 
-SJTU boasts a large number of famous scientists and professors, including 35 academics of the Academy of Sciences and Academy of Engineering, 95 accredited professors and chair professors of the "Cheung Kong Scholars Program" and more than 2,000 professors and associate professors.
-
-Its total enrollment of students amounts to 35,929, of which 1,564 are international students. There are 16,802 undergraduates, and 17,563 masters and Ph.D. candidates. After more than a century of operation, Jiao Tong University has inherited the old tradition of "high starting points, solid foundation, strict requirements and extensive practice." Students from SJTU have won top prizes in various competitions, including ACM International Collegiate Programming Contest, International Mathematical Contest in Modeling and Electronics Design Contests. Famous alumni include Jiang Zemin, Lu Dingyi, Ding Guangen, Wang Daohan, Qian Xuesen, Wu Wenjun, Zou Taofen, Mao Yisheng, Cai Er, Huang Yanpei, Shao Lizi, Wang An and many more. More than 200 of the academics of the Chinese Academy of Sciences and Chinese Academy of Engineering are alumni of Jiao Tong University.
+3.The self-healing experimental platform is designed, which includes positioning system, robot control and communication system, and remote control system. In this platform, a multi-robot formation self-healing experiment was designed. Experimental results show that the proposed algorithm is effective.
 
 \englishkeywords{\large Multi-robot Formation, Self-healing, Optimal Synchronization, Distributed Control, Status Machine}
 \end{englishabstract}
