@@ -363,7 +363,8 @@ ${ \forall R_j \in N_e(R_i), \delta \geq 0, \Delta \geq 0, \Delta \gg \delta,}$ 
 				\If {$Neighbor[i].Gra < NextRepairingRobot.Gra$}
 					\State $NextRepairingRobot \gets Neighbor[i]$
 				\Else
-					\If {$Neighbor[i].Gra = NextRepairingRobot.Gra \ \&\& \ Neighbor[i].id < NextRepairingRobot.id$}
+					\If {$Neighbor[i].Gra = NextRepairingRobot.Gra \ \&\& 
+						\ Neighbor[i].id < NextRepairingRobot.id$}
 						\State $NextRepairingRobot \gets Neighbor[i]$
 					\EndIf
 				\EndIf
