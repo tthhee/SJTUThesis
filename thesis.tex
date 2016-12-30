@@ -4,7 +4,7 @@
 %%==================================================
 
 % 双面打印
-\documentclass[master, fontset=adobe, openright, twoside]{sjtuthesis}
+\documentclass[master, fontset=adobe, openright, twoside, zihao=-4]{sjtuthesis}
 % \documentclass[bachelor, fontset=adobe, openany, oneside, submit]{sjtuthesis} 
 % \documentclass[master, adobefonts, review]{sjtuthesis} 
 % \documentclass[%
@@ -35,10 +35,10 @@
 
 \makeatletter
 \ifsjtu@submit\relax
-	\includepdf{pdf/original.pdf}
-	\cleardoublepage
-	\includepdf{pdf/authorization.pdf}
-	\cleardoublepage
+%	\includepdf{pdf/original.pdf}
+%	\cleardoublepage
+%	\includepdf{pdf/authorization.pdf}
+%	\cleardoublepage
 \else
 	\makeDeclareOriginal
 	\makeDeclareAuthorization

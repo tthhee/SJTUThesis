@@ -47,7 +47,7 @@
 % Segment 1. Import LaTeX packages.
 %==========
 
-\RequirePackage[centering,a4paper,body={16cm,22cm}]{geometry} %设置版面
+\RequirePackage[centering,a4paper,body={16cm,23cm}]{geometry} %设置版面
 \RequirePackage{fancyhdr}
 \RequirePackage{lastpage}
 \RequirePackage{fontspec}
@@ -62,6 +62,7 @@
 \RequirePackage{subfigure}
 \RequirePackage{ccaption}
 \RequirePackage[backend=biber,style=caspervector,utf8, bibencoding=utf8, sorting=none]{biblatex} %caspervector,utf8
+%\RequirePackage[backend=biber,style=gb7714-2015, bibencoding=utf8, sorting=none]{biblatex}
 \RequirePackage{xcolor}
 \RequirePackage{wasysym}
 \RequirePackage{listings}
